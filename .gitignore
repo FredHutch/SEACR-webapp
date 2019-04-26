@@ -1,1 +1,5 @@
 .vscode/
+SEACR/
+*.bedgraph
+*.bed
+output.*.txt

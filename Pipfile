@@ -23,6 +23,8 @@ flask = "*"
 flask-wtf = "*"
 gunicorn = "*"
 sh = "*"
+celery = "*"
+rq = "*"
 
 [requires]
 python_version = "3.6"
