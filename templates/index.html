@@ -1,39 +1,140 @@
-{% extends "bootstrap/base.html" %}
-{% block title %}SEACR{% endblock %}
+<html>
 
-{% block styles %}
-{{super()}}
-<!--link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}"-->
-{% endblock %}
+<head>
+    <title>SEACR</title>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 
+</head>
 
-{% block scripts %}
-<!-- ><script src="{{url_for('.static', filename='js/knockout-min.js')}}"></script> -->
-{{super()}}
-{% endblock %}
+<body>
+
+    <h1>SEACR</h1>
 
 
-{% block navbar %}
-<div class="navbar navbar-fixed-top">
-    <!-- ... -->
-</div>
-{% endblock %}
 
-{% block content %}
-<h1>SEACR</h1>
+    <div class="container" style="margin-top: 20px;">
+        <div class="row">
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg">
-            One of three columns
+            <!-- <button class="col-sm-1" onclick="reset($('#fio'))">Reset file</button> -->
+
+
+            <div class="col-lg-6 col-sm-6 col-12">
+                <div class="input-group">
+                    <label class="input-group-btn">
+                        <span class="btn btn-primary">
+                            Browse&hellip; <input type="file" style="display: none;">
+                        </span>
+                    </label>
+                    <form><input type="text" id="file1" class="form-control" placeholder="target data bedgraph file"
+                            readonly>
+                    </form>
+                </div>
+                <span class="help-block">
+                    Target data bedgraph file in UCSC <a target="_blank"
+                        href="https://genome.ucsc.edu/goldenpath/help/bedgraph.html">bedgraph</a> format
+                </span>
+            </div>
         </div>
-        <div class="col-lg">
-            One of three columns
+
+        <div class="row">
+
+            <!-- <button class="col-sm-1" onclick="reset($('#fio'))">Reset file</button> -->
+
+
+            <div class="col-lg-6 col-sm-6 col-12">
+                <div class="input-group">
+                    <label class="input-group-btn">
+                        <span class="btn btn-primary">
+                            Browse&hellip; <input type="file" style="display: none;">
+                        </span>
+                    </label>
+                    <form><input type="text" id="file2" class="form-control"
+                            placeholder="Control (IgG) data bedgraph file" readonly>
+                    </form>
+                </div>
+                <span class="help-block">
+                    To generate an empirical threshold for peak calling
+                </span>
+            </div>
+            <div class="col-sm-1">or</div>
+            <div class="col-sm-5">
+                <!-- <label for="usr">Numeric threshold <i>n</i>:</label> -->
+                <input type="text" class="form-control" id="threshold" placeholder="numeric threshold between 0 and 1">
+            </div>
+
         </div>
-        <div class="col-lg">
-            One of three columns
+        <div class="row">
+            <div class="col-lg-6 col-sm-6 col-12">
+                <div class="radio">
+                    <label><input type="radio" name="normnon" checked>norm</label>
+                </div>
+                <div class="radio">
+                    <label><input type="radio" name="normnon">non</label>
+                </div>
+            </div>
+            <div class="col-sm-1">&nbsp;</div>
+            <div class="col-sm-5">
+                <div class="radio">
+                    <label><input type="radio" name="unionauc" checked>union</label>
+                </div>
+                <div class="radio">
+                    <label><input type="radio" name="unionauc">AUC</label>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-sm-6 col-12">
+                <input type="text" class="form-control" id="outputprefix" placeholder="output prefix">
+            </div>
+            <div class="col-sm-1">&nbsp;</div>
+            <div class="col-sm-5">
+                <button type="button" id="submitbutton" class="btn btn-primary">Submit</button>
+            </div>
+
+        </div>
+        <div class="row">
+            <div>&nbsp;</div>
+            <div>
+                <textarea class="form-control" rows="5" id="console" style="display: none;"></textarea>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    {# modals #}
+
+    <div class="modal fade" id="validation_failure_modal" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Validation Failure</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><b>Errors:</b></p>
+                    <div id="error_list"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-{% endblock %}
+
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="/static/js/SEACR.js?timestamp={{timestamp}}"></script>
+
+
+</body>
+
+
+</html>

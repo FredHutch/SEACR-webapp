@@ -2,6 +2,7 @@
 Celery tasks
 """
 
+import datetime
 import io
 from multiprocessing.pool import ThreadPool
 import os
@@ -58,16 +59,28 @@ def run_seacr(self, file1, file2, threshold, normnon, unionauc, output_prefix):
     seacr = sh.Command("SEACR/SEACR_1.0.sh")
     pool = ThreadPool(processes=1)
     async_result = pool.apply_async(seacr, args, kwargs)
+    errlen = 0
+    outlen = 0
     while not async_result.ready():
-        # thr = threading.Thread(target=seacr, args=args, kwargs=kwargs)
-        # TODO get the return value, the below won't work
-        # maybe try https://stackoverflow.com/a/14299004/470769
-        # return_value = thr.start()
-        # while thr.is_alive():
-        # TODO only show new output each time through the loop
-        # TODO send a custom task status here
-        print("OUT: {}".format(out.getvalue()))
-        print("ERR: {}".format(err.getvalue()))
+        errs = err.getvalue()
+        outs = out.getvalue()
+        if len(errs) > errlen:
+            enow = datetime.datetime.now()
+            newerr = errs[errlen : len(errs)]
+            print(newerr)
+            errlen = len(errs)
+            self.update_state(
+                state="PROGRESS", meta={"STDERR": newerr, "timestamp": enow}
+            )
+        if len(outs) > outlen:
+            onow = datetime.datetime.now()
+            newout = outs[outlen : len(outs)]
+            print(newout)
+            outlen = len(outs)
+            self.update_state(
+                state="PROGRESS", meta={"STDOUT": newout, "timestamp": onow}
+            )
+
         time.sleep(0.2)
     print("done")
     retval = async_result.get().exit_code

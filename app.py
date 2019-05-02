@@ -6,7 +6,7 @@ Application.
 
 import datetime
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 
 
@@ -23,20 +23,15 @@ APP = create_app()
 @APP.route("/")
 def main_route():
     "default route"
-    return render_template("index.html")
-
-
-@APP.route("/test")
-def test_route():
-    "test route"
-    return render_template("test.html")
-
-
-@APP.route("/derj")
-def bzz_route():
-    "bzz route"
     timestamp = datetime.datetime.now().isoformat()
-    return render_template("bzz.html", timestamp=timestamp)
+    return render_template("index.html", timestamp=timestamp)
+
+
+@APP.route("/submit", methods=["POST"])
+def submit():
+    "submit job"
+    print("files are {}".format(request.files))
+    return "OK"
 
 
 if __name__ == "__main__":
