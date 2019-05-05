@@ -1,14 +1,19 @@
 [[source]]
+
 name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
+
 [dev-packages]
+
 black = "*"
 pylint = "*"
 ipython = "*"
 
+
 [packages]
+
 appdirs = "==1.4.3"
 astroid = "==1.5.2"
 isort = "==4.2.5"
@@ -26,8 +31,12 @@ sh = "*"
 celery = "*"
 rq = "*"
 
+
 [requires]
+
 python_version = "3.6"
 
+
 [pipenv]
+
 allow_prereleases = true
