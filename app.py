@@ -75,7 +75,6 @@ def gen_file_name(filename):
 
 @APP.route("/upload", methods=["GET", "POST"])
 def upload():
-    import IPython;IPython.embed()
     if request.method == "POST":
         key = list(request.files.keys())[0]  # TODO ensure keys() is not empty
         files = request.files[key]
