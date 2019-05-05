@@ -109,6 +109,7 @@ def upload():
 
             return simplejson.dumps({"files": [result.get_file()]})
 
+    # TODO get rid of this:
     if request.method == "GET":
         # get all file in ./data directory
         files = [
