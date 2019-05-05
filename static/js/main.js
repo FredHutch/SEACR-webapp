@@ -19,17 +19,41 @@ $(function () {
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
         url: '/upload',
-        dropZone: null
-
-    });
-
-    //attempt validation before submit
-    $("#fileupload").bind('fileuploadsubmit', function(e, data) {
+        autoUpload: false, // Does not seem necessary?
+        dropZone: null,
+        submit: function(e, data) {
         console.log("in validation function");
         // TODO add form validation here, return
         // true/false depending on whether form is valid.
         return true;
+        },
+        // NOTE: Looks like just having 
+        // an add() function stops the submit button
+        // from working. 
+        // add: function(e, data) {
+        //     console.log("in add function");
+        //     // TODO track files added in a global array
+        //     // $.each(data.files, function (index, file) {
+        //     //     console.log('Added file: ' + file.name);
+        //     // });
+        //     // return true;
+        // },
+        done: function(e, data) {
+            // TODO track state of which files have been uploaded
+            console.log("Upload done, file " + data.result['files'][0]['name'])
+            console.log("result was " + data.textStatus)
+        }
+
+
     });
+
+    //attempt validation before submit
+    // $("#fileupload").bind('fileuploadsubmit', function(e, data) {
+    //     console.log("in validation function");
+    //     // TODO add form validation here, return
+    //     // true/false depending on whether form is valid.
+    //     return true;
+    // });
 
     // Enable iframe cross-domain access via redirect option:
     $('#fileupload').fileupload(
