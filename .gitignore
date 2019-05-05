@@ -3,3 +3,5 @@ SEACR/
 *.bedgraph
 *.bed
 output.*.txt
+data/*.jpg
+data/*.bed
