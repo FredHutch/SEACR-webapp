@@ -23,6 +23,14 @@ $(function () {
 
     });
 
+    //attempt validation before submit
+    $("#fileupload").bind('fileuploadsubmit', function(e, data) {
+        console.log("in validation function");
+        // TODO add form validation here, return
+        // true/false depending on whether form is valid.
+        return true;
+    });
+
     // Enable iframe cross-domain access via redirect option:
     $('#fileupload').fileupload(
         'option',
