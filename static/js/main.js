@@ -40,6 +40,7 @@ $(function () {
         // },
         done: function(e, data) {
             // TODO track state of which files have been uploaded
+            if (data.result['files'][0]['name'] == ".placeholder") return
             console.log("Upload done, file " + data.result['files'][0]['name'])
             console.log("result was " + data.textStatus)
         }
