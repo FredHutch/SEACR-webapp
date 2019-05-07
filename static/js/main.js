@@ -11,9 +11,81 @@
 
 /* global $, window */
 
+isEmpty = function (thing) {
+    // TODO unhardcode these everywhere:
+    var empty = ["target data bedgraph file", "Control (IgG) data bedgraph file", ""]
+    return empty.indexOf(thing) != -1
+}
+
+// are one or more files selected?
+fileSelected = function () {
+    var boxes = ["file1", "file2"];
+    var box;
+    var empty = ["target data bedgraph file", "Control (IgG) data bedgraph file", ""]
+    for (box of boxes) {
+        var selector = "#" + box;
+        var placeholder = $(selector).attr('placeholder');
+        if (!isEmpty(placeholder)) return true;
+    }
+    return false;
+}
+
+// clear out form items when page is reloaded
+cleanup = function () {
+    $("#outputprefix").val("");
+    $("#threshold").val("");
+}
+
+validate = function () {
+    console.log("in validate function");
+    var errors = [];
+    var file1 = $("#file1").attr('placeholder');
+    if (isEmpty(file1)) {
+        errors.push("Select a target data bedgraph file.");
+    }
+    var file2 = $("#file2").attr('placeholder');
+    var threshold = $("#threshold").val();
+    if (isEmpty(file2) && threshold == "") {
+        errors.push("Select a control file or choose a numeric threshold.");
+    }
+    if ((!isEmpty(file2)) && threshold != "") {
+        errors.push("Choose control file OR numeric threshold, not both.")
+    }
+    if (threshold != "" && isNaN(Number(threshold))) {
+        errors.push("Threshold must be a number.")
+    }
+    if (threshold != "" && !isNaN(Number(threshold))) {
+        var numthresh = Number(threshold);
+        if (numthresh < 0 || numthresh > 1) {
+            errors.push("Threshold must be between 0 and 1.");
+        }
+    }
+    var outputprefix = $("#outputprefix").val();
+    if (outputprefix == "") {
+        errors.push("Select an output prefix.");
+    }
+    if (errors.length > 0) {
+        $("#error_list").html(errors.join("<br>"));
+        $("#validation_failure_modal").modal();
+        return false;
+    }
+    return true;
+}
+
+
 $(function () {
     'use strict';
 
+    cleanup();
+    $("#submitbutton").bind('click', function () {
+        console.log("u clicked submit");
+        if (fileSelected()) {
+            console.log("a file is selected");
+        } else {
+            console.log("no files are selected");
+            return validate();
+        }
+    });
     // Initialize the jQuery File Upload widget:
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
@@ -21,11 +93,11 @@ $(function () {
         url: '/upload',
         autoUpload: false, // Does not seem necessary?
         dropZone: null,
-        submit: function(e, data) {
-        console.log("in validation function");
-        // TODO add form validation here, return
-        // true/false depending on whether form is valid.
-        return true;
+        submit: function (e, data) {
+            console.log("in validation function");
+            // TODO add form validation here, return
+            // true/false depending on whether form is valid.
+            return validate();
         },
         // NOTE: Looks like just having 
         // an add() function stops the submit button
@@ -38,7 +110,7 @@ $(function () {
         //     // });
         //     // return true;
         // },
-        done: function(e, data) {
+        done: function (e, data) {
             // TODO track state of which files have been uploaded
             if (data.result['files'][0]['name'] == ".placeholder") return
             console.log("Upload done, file " + data.result['files'][0]['name'])
@@ -86,7 +158,7 @@ $(function () {
             }).fail(function () {
                 $('<div class="alert alert-danger"/>')
                     .text('Upload server currently unavailable - ' +
-                            new Date())
+                        new Date())
                     .appendTo('#fileupload');
             });
         }
@@ -103,7 +175,7 @@ $(function () {
             $(this).removeClass('fileupload-processing');
         }).done(function (result) {
             $(this).fileupload('option', 'done')
-                .call(this, $.Event('done'), {result: result});
+                .call(this, $.Event('done'), { result: result });
         });
     }
 
@@ -116,16 +188,16 @@ $(document).ready(function () {
 
     $(':file').attr('placeholder', '');
 
-    $("#file1").bind('change',  function() {
+    $("#file1").bind('change', function () {
         console.log("does this work?");
     });
-    $(':file').bind('change', function() {
+    $(':file').bind('change', function () {
         console.log("in change event handler");
         var assoc = $(this).attr('assoc');
         console.log("assoc is " + assoc);
 
         var arr = $(this).val().split("\\");
-        var name = arr[arr.length -1];
+        var name = arr[arr.length - 1];
         $("#" + assoc).attr('placeholder', name);
     });
 
