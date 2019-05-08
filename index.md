@@ -1,4 +1,4 @@
-## SEACR: Sparse Enrichment Analysis for CUT&RUN
+## Sparse Enrichment Analysis for CUT&RUN
 
 **Coming soon**: a web site allowing you to run the SEACR method online.
 
