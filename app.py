@@ -45,10 +45,24 @@ APP = create_APP()
 APP.config["SECRET_KEY"] = "hard to guess string"
 APP.config["UPLOAD_FOLDER"] = "data/"
 APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
-APP.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
+# APP.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(
-    ["txt", "gif", "png", "jpg", "jpeg", "bmp", "rar", "zip", "7zip", "doc", "docx"]
+    # TODO remove everything but "bed" from this set:
+    [
+        "bed",
+        "txt",
+        "gif",
+        "png",
+        "jpg",
+        "jpeg",
+        "bmp",
+        "rar",
+        "zip",
+        "7zip",
+        "doc",
+        "docx",
+    ]
 )
 IGNORED_FILES = set([".gitignore"])
 
