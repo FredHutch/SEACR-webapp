@@ -48,9 +48,10 @@ APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
 # APP.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(
-    # TODO remove everything but "bed" from this set:
+    # TODO remove everything but "bed" and "bedgraph" from this set:
     [
         "bed",
+        "bedgraph",
         "txt",
         "gif",
         "png",

@@ -115,7 +115,32 @@ $(function () {
             if (data.result['files'][0]['name'] == ".placeholder") return
             console.log("Upload done, file " + data.result['files'][0]['name'])
             console.log("result was " + data.textStatus)
+        },
+        send: function (e, data) {
+            console.log("in send callback");
+        },
+        done: function (e, data) {
+            console.log("in done callback");
+        },
+        fail: function (e, data) {
+            console.log("in fail callback");
+        },
+        always: function (e, data) {
+            console.log("in always callback");
+        },
+        // progress: function (e, data) {
+        //     console.log("in progress callback");
+        // },
+        // progressall: function (e, data) {
+        //     console.log("in progressall callback");
+        // },
+        start: function (e, data) {
+            console.log("in start callback");
+        },
+        stop: function (e, data) {
+            console.log("in stop callback")
         }
+
 
 
     });
@@ -147,8 +172,10 @@ $(function () {
             // send Blob objects via XHR requests:
             disableImageResize: /Android(?!.*Chrome)|Opera/
                 .test(window.navigator.userAgent),
+            // TODO: reinstate a max file size when we have an idea 
+            // what it should be.
             // maxFileSize: 5000000,
-            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bed)$/i
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bed|bedgraph)$/i
         });
         // Upload server status check for browsers with CORS support:
         if ($.support.cors) {
