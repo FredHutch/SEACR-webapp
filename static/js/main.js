@@ -11,6 +11,30 @@
 
 /* global $, window */
 
+var filesUploadedSuccessfully = 0;
+var expectedNumberOfUploads = 0;
+var uploadedFiles = [];
+var jobTimestamp = null;
+
+function pad(num, size) {
+    var s = num + "";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+
+getTimestamp = function () {
+    var now = new Date()
+    var locale = "en-US";
+    var out = now.toLocaleString(locale, { year: 'numeric' });
+    out += now.toLocaleString(locale, { month: '2-digit' });
+    out += now.toLocaleString(locale, { day: '2-digit' });
+    out += now.toLocaleString("en-US", { hour: '2-digit', hour12: false });
+    out += now.toLocaleString("en-US", { minute: '2-digit' });
+    out += now.toLocaleString("en-US", { second: '2-digit' });
+    out += pad(now.getMilliseconds(), 4);
+    return out;
+}
+
 isEmpty = function (thing) {
     // TODO unhardcode these everywhere:
     var empty = ["target data bedgraph file", "Control (IgG) data bedgraph file", ""]
@@ -72,6 +96,38 @@ validate = function () {
     return true;
 }
 
+getFileName = function (file1or2) {
+    var selector = "#" + file1or2;
+    var placeholder = $(selector).attr('placeholder');
+    if (isEmpty(placeholder)) return null;
+    return placeholder;
+}
+
+kickOffJob = function () {
+    console.log("in kickOffJob()");
+    jobTimestamp = getTimestamp();
+    console.log("set job timestamp to " + jobTimestamp);
+    $.ajax({
+        contentType: "application/json;charset=UTF-8",
+        dataType: "json",
+        method: "POST",
+        url: "/kick_off_job",
+        data: JSON.stringify({
+            timestamp: jobTimestamp,
+            file1: getFileName("file1"),
+            file2: getFileName("file2"),
+            threshold: $("#threshold").val(),
+            normnon: $('input[name=normnon]:checked').val(),
+            unionauc: $('input[name=unionauc]:checked').val(),
+            output_prefix: $("#outputprefix").val()
+        })
+    }).done(function (msg) {
+        console.log("in kickOffJob done callback, message is");
+        console.log(msg);
+        // TODO start polling server to see when job ends,
+        // displaying log messages if possible.
+    });
+}
 
 $(function () {
     'use strict';
@@ -94,10 +150,21 @@ $(function () {
         autoUpload: false, // Does not seem necessary?
         dropZone: null,
         submit: function (e, data) {
-            console.log("in validation function");
+            console.log("in submit callback");
             // TODO add form validation here, return
             // true/false depending on whether form is valid.
-            return validate();
+            var valid = validate();
+            if (valid && expectedNumberOfUploads == 0) {
+                // TODO disable form at this point and show
+                // upload progress indicators
+                if (!isEmpty($("#file1").attr('placeholder'))) {
+                    expectedNumberOfUploads += 1;
+                }
+                if (!isEmpty($("#file2").attr('placeholder'))) {
+                    expectedNumberOfUploads += 1;
+                }
+            }
+            return valid;
         },
         // NOTE: Looks like just having 
         // an add() function stops the submit button
@@ -115,12 +182,16 @@ $(function () {
             if (data.result['files'][0]['name'] == ".placeholder") return
             console.log("Upload done, file " + data.result['files'][0]['name'])
             console.log("result was " + data.textStatus)
+            uploadedFiles.push(data.result['files'][0]['name']);
+            filesUploadedSuccessfully += 1;
+            if (filesUploadedSuccessfully == expectedNumberOfUploads) {
+                console.log("all expected files have uploaded successfully!");
+                // now do stuff...
+                kickOffJob()
+            }
         },
         send: function (e, data) {
             console.log("in send callback");
-        },
-        done: function (e, data) {
-            console.log("in done callback");
         },
         fail: function (e, data) {
             console.log("in fail callback");

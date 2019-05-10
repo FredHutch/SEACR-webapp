@@ -4,7 +4,11 @@
 Application.
 """
 
+from tasks import run_seacr
+
 import datetime
+import json
+import os
 
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
@@ -45,6 +49,7 @@ APP = create_APP()
 APP.config["SECRET_KEY"] = "hard to guess string"
 APP.config["UPLOAD_FOLDER"] = "data/"
 APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
+APP.config["JOB_DIR"] = "jobs/"
 # APP.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(
@@ -86,6 +91,50 @@ def gen_file_name(filename):
         i += 1
 
     return filename
+
+
+@APP.route("/kick_off_job", methods=["POST"])
+def kick_off_job():
+    "kick off a seacr job"
+    print("in kick_off_job()")
+    jsons = request.get_json()
+    if jsons is None:
+        return '{"result": "none"}'
+
+    print("in kick_off_job(), jsons is")
+    print(jsons)
+    print(jsons.__class__)
+
+    # create a job directory:
+    job_dir = "{}{}".format(APP.config["JOB_DIR"], jsons["timestamp"])
+    os.mkdir(job_dir)
+
+    # move file(s) to jobs directory:
+    os.rename(
+        "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"]),
+        "{}/{}".format(job_dir, jsons["file1"]),
+    )
+    if jsons["file2"] is not None or jsons["file2"] != "":
+        os.rename(
+            "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file2"]),
+            "{}/{}".format(job_dir, jsons["file2"]),
+        )
+
+    # NOTE: hardcoding SEACR version here
+    seacr_path = os.path.dirname(os.path.abspath(__file__)) + "/SEACR/" + "SEACR_1.0.sh"
+    task = run_seacr.delay(
+        job_dir,
+        seacr_path,
+        jsons["file1"],
+        jsons["file2"],
+        jsons["threshold"],
+        jsons["normnon"],
+        jsons["unionauc"],
+        jsons["output_prefix"],
+    )
+    print("task id is")
+    print(task.task_id)
+    return json.dumps(dict(taskId=task.task_id))
 
 
 @APP.route("/upload", methods=["GET", "POST"])

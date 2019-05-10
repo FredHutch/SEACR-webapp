@@ -36,10 +36,22 @@ def test(self, name):
 
 
 @APP.task(bind=True)
-def run_seacr(self, file1, file2, threshold, normnon, unionauc, output_prefix):
+def run_seacr(
+    self,
+    job_dir,
+    seacr_command,
+    file1,
+    file2,
+    threshold,
+    normnon,
+    unionauc,
+    output_prefix,
+):
     "run seacr"
     # TODO change to unique temp dir based on task id
     LOGGER.info("task id is %s", self.request.id)
+    # 'with os.chdir(...)' is not working for some reason, so just omit the `with`.
+    os.chdir(job_dir)
     args = [file1]
     if threshold:
         args.append(threshold)
@@ -56,7 +68,7 @@ def run_seacr(self, file1, file2, threshold, normnon, unionauc, output_prefix):
     if os.uname()[0] == "Darwin":
         env["LC_ALL"] = "C"
     kwargs = dict(_err=err, _out=out, _env=env)
-    seacr = sh.Command("SEACR/SEACR_1.0.sh")
+    seacr = sh.Command(seacr_command)
     pool = ThreadPool(processes=1)
     async_result = pool.apply_async(seacr, args, kwargs)
     errlen = 0
@@ -83,14 +95,18 @@ def run_seacr(self, file1, file2, threshold, normnon, unionauc, output_prefix):
 
         time.sleep(0.2)
     print("done")
-    retval = async_result.get().exit_code
-    print("return value is {}".format(retval))
+    retval = int(async_result.get().exit_code)
+    # print("return value is {}".format(retval))
+    LOGGER.info("return value is %s", retval)
+
     return retval
 
 
 if __name__ == "__main__":
     run_seacr(
         None,  # this won't work... TODO create mock object?
+        "/tmp",
+        "./SEACR/SEACR_1.0.sh",
         "NPATBH.spike_Ec.bedgraph",
         "IgGBH.spike_Ec.bedgraph",
         None,

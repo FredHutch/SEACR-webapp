@@ -35,7 +35,7 @@ Specifically, run a SEACR task:
 
 ```python
 from tasks import *
-result = run_seacr.delay(        "NPATBH.spike_Ec.bedgraph",
+result = run_seacr.delay("/some/temp/dir", "/path/to/SEACR_1.0.sh",  "NPATBH.spike_Ec.bedgraph",
         "IgGBH.spike_Ec.bedgraph",
         None,
         "norm",
