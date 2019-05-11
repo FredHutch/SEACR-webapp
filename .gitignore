@@ -5,3 +5,5 @@ SEACR/
 output.*.txt
 data/*.jpg
 data/*.bed
+lib/__pycache__/
+__pycache__/

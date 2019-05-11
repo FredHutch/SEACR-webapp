@@ -6,6 +6,7 @@ import datetime
 import io
 from multiprocessing.pool import ThreadPool
 import os
+import sys
 
 # import threading
 import time
@@ -21,6 +22,9 @@ APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@localhost//")
 
 # APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@fieldroast//")
 
+err = io.StringIO()
+out = io.StringIO()
+
 
 @APP.task
 def add(arg1, arg2):
@@ -34,6 +38,29 @@ def test(self, name):
     LOGGER.info("task id is %s", self.request.id)
     return "Hello, {}, your task ID is {}.".format(name, self.request.id)
 
+
+def seacr_wrapper(*args, **kwargs):
+    "wrapper"
+    try:
+        seacr = sh.Command(kwargs['seacr_command'])
+        del kwargs['seacr_command']
+        result = seacr(*args, **kwargs)
+        LOGGER.info("success!")
+        return (result.exit_code, "success",)
+    except sh.ErrorReturnCode as shex:
+        # TODO log some stuff here
+        # TODO maybe return exception message instead of exit code, 
+        # or a tuple of both?
+        LOGGER.info("shell exception is %s", shex)
+        # but it does!
+        return (shex.exit_code, str(shex)) # pylint: disable=no-member
+    except:
+        exc = sys.exc_info()[0]
+        LOGGER.info("General exception is %s", exc)
+        # TODO log some stuff here
+        # TODO maybe return exception message instead of exit code, 
+        # or a tuple of both?
+        return (-666, str(exc))
 
 @APP.task(bind=True)
 def run_seacr(
@@ -60,17 +87,15 @@ def run_seacr(
     args.append(normnon)
     args.append(unionauc)
     args.append(output_prefix)
-    err = io.StringIO()
-    out = io.StringIO()
     # LC_ALL needs to be set to C on mac (only, I think) or `tr` will
     # complain of `illegal byte sequence` (https://unix.stackexchange.com/a/141423/64811)
     env = {}
     if os.uname()[0] == "Darwin":
         env["LC_ALL"] = "C"
-    kwargs = dict(_err=err, _out=out, _env=env)
-    seacr = sh.Command(seacr_command)
+    kwargs = dict(_err=err, _out=out, _env=env, seacr_command=seacr_command)
+    # seacr = sh.Command(seacr_command)
     pool = ThreadPool(processes=1)
-    async_result = pool.apply_async(seacr, args, kwargs)
+    async_result = pool.apply_async(seacr_wrapper, args, kwargs)
     errlen = 0
     outlen = 0
     while not async_result.ready():
@@ -95,7 +120,7 @@ def run_seacr(
 
         time.sleep(0.2)
     print("done")
-    retval = int(async_result.get().exit_code)
+    retval = async_result.get()
     # print("return value is {}".format(retval))
     LOGGER.info("return value is %s", retval)
 
