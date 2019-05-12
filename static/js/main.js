@@ -126,6 +126,9 @@ kickOffJob = function () {
         console.log(msg);
         // TODO start polling server to see when job ends,
         // displaying log messages if possible.
+        // like this:
+        // $.getJSON("/get_job_status", {job_id: "2112"}, function(msg) {console.log(msg)} );
+        // but do it in a timer loop
     });
 }
 
