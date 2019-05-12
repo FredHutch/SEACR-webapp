@@ -32,6 +32,12 @@ def add(arg1, arg2):
     return arg1 + arg2
 
 
+@APP.task
+def waity(secs):
+    "waity task"
+    time.sleep(secs)
+    return secs
+
 @APP.task(bind=True)
 def test(self, name):
     "test bound task"

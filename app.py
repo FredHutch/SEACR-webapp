@@ -92,6 +92,19 @@ def gen_file_name(filename):
 
     return filename
 
+@APP.route("/get_job_status", methods=["GET"])
+def get_job_status():
+    "get job status"
+    if not request.args:
+        return json.dumps({"error": "no args"})
+    if not 'job_id' in request.args:
+        return json.dumps({"error": "missing 'job_id' arg"})
+    job_id = request.args['job_id']
+    res = run_seacr.AsyncResult(task_id=job_id)
+    #    print(f'State={result.state}, info={result.info}')
+
+    return json.dumps({"state": res.state, "info": res.info})
+
 
 @APP.route("/kick_off_job", methods=["POST"])
 def kick_off_job():
