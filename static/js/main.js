@@ -61,6 +61,8 @@ cleanup = function () {
 }
 
 validate = function () {
+    // TODO validate file name extensions, only allow .bedgraph extension
+    // and any other stuff (file size) that is handled by the framework
     console.log("in validate function");
     var errors = [];
     var file1 = $("#file1").attr('placeholder');
@@ -105,6 +107,11 @@ getFileName = function (file1or2) {
 
 kickOffJob = function () {
     console.log("in kickOffJob()");
+    $("#console-hideme").show();
+    $("#fileupload").hide();
+    //    $("#console").append('<span style="font-family: Courier New; color: orange;">dlkjfdlkjfhdf lfkdjhdlkjfhd lkjfhd<br/></span>');
+    // console.log("FIXME!");
+    // if (true) return;
     jobTimestamp = getTimestamp();
     console.log("set job timestamp to " + jobTimestamp);
     $.ajax({
@@ -129,6 +136,10 @@ kickOffJob = function () {
         // like this:
         // $.getJSON("/get_job_status", {job_id: "2112"}, function(msg) {console.log(msg)} );
         // but do it in a timer loop
+        // see https://techoctave.com/c7/posts/60-simple-long-polling-example-with-javascript-and-jquery
+        // after we're done, link to output files 
+        // and also add a button to reload page if you want to run another analysis.
+
     });
 }
 
@@ -166,6 +177,10 @@ $(function () {
                 if (!isEmpty($("#file2").attr('placeholder'))) {
                     expectedNumberOfUploads += 1;
                 }
+                $("#progress-container").show();
+                if (expectedNumberOfUploads == 1) {
+                    $("#control-progress-container").hide();
+                }
             }
             return valid;
         },
@@ -189,8 +204,9 @@ $(function () {
             filesUploadedSuccessfully += 1;
             if (filesUploadedSuccessfully == expectedNumberOfUploads) {
                 console.log("all expected files have uploaded successfully!");
+                $("#progress-container").hide();
                 // now do stuff...
-                kickOffJob()
+                kickOffJob();
             }
         },
         send: function (e, data) {
@@ -202,12 +218,28 @@ $(function () {
         always: function (e, data) {
             console.log("in always callback");
         },
-        // progress: function (e, data) {
-        //     console.log("in progress callback");
-        // },
-        // progressall: function (e, data) {
-        //     console.log("in progressall callback");
-        // },
+        progress: function (e, data) {
+            var assoc = $(data['fileInput'][0]).attr('assoc');
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            if (assoc == "file1") {
+                $('#target-progress .progress-bar').css(
+                    'width',
+                    progress + '%'
+                );
+            } else if (assoc == "file2") {
+                $('#control-progress .progress-bar').css(
+                    'width',
+                    progress + '%'
+                );
+            }
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .progress-bar').css(
+                'width',
+                progress + '%'
+            );
+        },
         start: function (e, data) {
             console.log("in start callback");
         },

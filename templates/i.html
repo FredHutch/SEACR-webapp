@@ -91,12 +91,6 @@
                 </div>
 
             </div>
-            <div class="row">
-                <div>&nbsp;</div>
-                <div>
-                    <textarea class="form-control" rows="5" id="console" style="display: none;"></textarea>
-                </div>
-            </div>
 
 
         </div>
@@ -142,7 +136,56 @@
             </table>
         </div>
     </form>
-    <br>
+    <div id="progress-container" style="display: none;">
+        <br>
+        <div class="row">
+            <div class="col-12">Global Progress:</div>
+        </div>
+        <div class="row">
+            {# global progress bar #}
+            <div id="progress" class="progress col-12">
+                <div class="progress-bar progress-bar-success"></div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-12">Target data file progress:</div>
+        </div>
+        <div class="row">
+            {# target progress bar #}
+            <div id="target-progress" class="progress col-12">
+                <div class="progress-bar progress-bar-success"></div>
+            </div>
+        </div>
+
+        <br>
+        <div id="control-progress-container">
+            <div class="row">
+                <div class="col-12">Control file progress:</div>
+            </div>
+            <div class="row">
+                {# control progress bar #}
+                <div id="control-progress" class="progress col-12">
+                    <div class="progress-bar progress-bar-success"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="console-hideme" style="display: none;">
+        <div class="row">
+            <div class="col-12">Output console:</div>
+        </div>
+        <div class="row">
+            <div>&nbsp;</div>
+            <div id="console-container" style="border-style: solid;">
+                <div id="console"></div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 {# The blueimp Gallery widget #}
 <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">

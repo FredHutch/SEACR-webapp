@@ -30,7 +30,8 @@ out = io.StringIO()
 
 def datetime_to_number(dtm):
     "convert a datetime to a number"
-    return (dtm-datetime.datetime(1970,1,1)).total_seconds()
+    return (dtm - datetime.datetime(1970, 1, 1)).total_seconds()
+
 
 @APP.task
 def add(arg1, arg2):
@@ -134,7 +135,12 @@ def run_seacr(
                 exchange="",
                 routing_key=self.request.id,
                 body=json.dumps(
-                    dict(stream="STDERR", data=newerr, timestamp=datetime_to_number(enow), count=errcount)
+                    dict(
+                        stream="STDERR",
+                        data=newerr,
+                        timestamp=datetime_to_number(enow),
+                        count=errcount,
+                    )
                 ),
             )
             errcount += 1
@@ -152,7 +158,12 @@ def run_seacr(
                 exchange="",
                 routing_key=self.request.id,
                 body=json.dumps(
-                    dict(stream="STDOUT", data=newout, timestamp=datetime_to_number(onow), count=outcount)
+                    dict(
+                        stream="STDOUT",
+                        data=newout,
+                        timestamp=datetime_to_number(onow),
+                        count=outcount,
+                    )
                 ),
             )
             outcount += 1

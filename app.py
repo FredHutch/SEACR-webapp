@@ -93,17 +93,20 @@ def gen_file_name(filename):
 
     return filename
 
+
 @APP.route("/get_job_status", methods=["GET"])
 def get_job_status():
     "get job status"
     if not request.args:
         return json.dumps({"error": "no args"})
-    if not 'job_id' in request.args:
+    if not "job_id" in request.args:
         return json.dumps({"error": "missing 'job_id' arg"})
-    job_id = request.args['job_id']
+    job_id = request.args["job_id"]
     connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='localhost')) # TODO unhardcode host name (use env var)
+        pika.ConnectionParameters(host="localhost")
+    )  # TODO unhardcode host name (use env var)
     channel = connection.channel()
+    # TODO handle exception here if queue does not exist:
     method_frame, header_frame, body = channel.basic_get(job_id)
     got_log_msg = False
     log_msg = None
@@ -111,12 +114,12 @@ def get_job_status():
     if method_frame:
         got_log_msg = True
         print(method_frame, header_frame, body)
-        log_msg = body.decode('utf-8')
+        log_msg = body.decode("utf-8")
         log_obj = json.loads(log_msg)
 
         channel.basic_ack(method_frame.delivery_tag)
     else:
-        print('No message returned')
+        print("No message returned")
     # check pika queue for any log messages
     # then check stask status
     # put them together & return them
