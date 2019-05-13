@@ -13,9 +13,10 @@ import os
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 
+import pika
+
 # ----
 
-import os
 
 # import PIL
 # from PIL import Image
@@ -100,10 +101,30 @@ def get_job_status():
     if not 'job_id' in request.args:
         return json.dumps({"error": "missing 'job_id' arg"})
     job_id = request.args['job_id']
+    connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host='localhost')) # TODO unhardcode host name (use env var)
+    channel = connection.channel()
+    method_frame, header_frame, body = channel.basic_get(job_id)
+    got_log_msg = False
+    log_msg = None
+    log_obj = None
+    if method_frame:
+        got_log_msg = True
+        print(method_frame, header_frame, body)
+        log_msg = body.decode('utf-8')
+        log_obj = json.loads(log_msg)
+
+        channel.basic_ack(method_frame.delivery_tag)
+    else:
+        print('No message returned')
+    # check pika queue for any log messages
+    # then check stask status
+    # put them together & return them
+
     res = run_seacr.AsyncResult(task_id=job_id)
     #    print(f'State={result.state}, info={result.info}')
 
-    return json.dumps({"state": res.state, "info": res.info})
+    return json.dumps({"state": res.state, "info": res.info, "log_obj": log_obj})
 
 
 @APP.route("/kick_off_job", methods=["POST"])

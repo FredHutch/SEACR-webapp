@@ -4,6 +4,7 @@ Celery tasks
 
 import datetime
 import io
+import json
 from multiprocessing.pool import ThreadPool
 import os
 import sys
@@ -14,6 +15,7 @@ import time
 
 from celery import Celery
 from celery.utils.log import get_task_logger
+import pika
 import sh
 
 LOGGER = get_task_logger(__name__)
@@ -25,6 +27,10 @@ APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@localhost//")
 err = io.StringIO()
 out = io.StringIO()
 
+
+def datetime_to_number(dtm):
+    "convert a datetime to a number"
+    return (dtm-datetime.datetime(1970,1,1)).total_seconds()
 
 @APP.task
 def add(arg1, arg2):
@@ -38,6 +44,7 @@ def waity(secs):
     time.sleep(secs)
     return secs
 
+
 @APP.task(bind=True)
 def test(self, name):
     "test bound task"
@@ -48,25 +55,26 @@ def test(self, name):
 def seacr_wrapper(*args, **kwargs):
     "wrapper"
     try:
-        seacr = sh.Command(kwargs['seacr_command'])
-        del kwargs['seacr_command']
+        seacr = sh.Command(kwargs["seacr_command"])
+        del kwargs["seacr_command"]
         result = seacr(*args, **kwargs)
         LOGGER.info("success!")
-        return (result.exit_code, "success",)
+        return (result.exit_code, "success")
     except sh.ErrorReturnCode as shex:
         # TODO log some stuff here
-        # TODO maybe return exception message instead of exit code, 
+        # TODO maybe return exception message instead of exit code,
         # or a tuple of both?
         LOGGER.info("shell exception is %s", shex)
         # but it does!
-        return (shex.exit_code, str(shex)) # pylint: disable=no-member
-    except:
+        return (shex.exit_code, str(shex))  # pylint: disable=no-member
+    except:  # pylint: disable=bare-except
         exc = sys.exc_info()[0]
         LOGGER.info("General exception is %s", exc)
         # TODO log some stuff here
-        # TODO maybe return exception message instead of exit code, 
+        # TODO maybe return exception message instead of exit code,
         # or a tuple of both?
         return (-666, str(exc))
+
 
 @APP.task(bind=True)
 def run_seacr(
@@ -83,6 +91,11 @@ def run_seacr(
     "run seacr"
     # TODO change to unique temp dir based on task id
     LOGGER.info("task id is %s", self.request.id)
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host="localhost")
+    )  # TODO unhardcode hostname (use env var)
+    channel = connection.channel()
+    channel.queue_declare(queue=self.request.id)
     # 'with os.chdir(...)' is not working for some reason, so just omit the `with`.
     os.chdir(job_dir)
     args = [file1]
@@ -104,6 +117,8 @@ def run_seacr(
     async_result = pool.apply_async(seacr_wrapper, args, kwargs)
     errlen = 0
     outlen = 0
+    errcount = 0
+    outcount = 0
     while not async_result.ready():
         errs = err.getvalue()
         outs = out.getvalue()
@@ -112,24 +127,42 @@ def run_seacr(
             newerr = errs[errlen : len(errs)]
             print(newerr)
             errlen = len(errs)
-            self.update_state(
-                state="PROGRESS", meta={"STDERR": newerr, "timestamp": enow}
+            # self.update_state(
+            #     state="PROGRESS", meta={"STDERR": newerr, "timestamp": enow, "count": errcount}
+            # )
+            channel.basic_publish(
+                exchange="",
+                routing_key=self.request.id,
+                body=json.dumps(
+                    dict(stream="STDERR", data=newerr, timestamp=datetime_to_number(enow), count=errcount)
+                ),
             )
+            errcount += 1
+
         if len(outs) > outlen:
             onow = datetime.datetime.now()
             newout = outs[outlen : len(outs)]
             print(newout)
             outlen = len(outs)
-            self.update_state(
-                state="PROGRESS", meta={"STDOUT": newout, "timestamp": onow}
+            # self.update_state(
+            #     state="PROGRESS",
+            #     meta={"STDOUT": newout, "timestamp": onow, "count": outcount},
+            # )
+            channel.basic_publish(
+                exchange="",
+                routing_key=self.request.id,
+                body=json.dumps(
+                    dict(stream="STDOUT", data=newout, timestamp=datetime_to_number(onow), count=outcount)
+                ),
             )
+            outcount += 1
 
         time.sleep(0.2)
     print("done")
     retval = async_result.get()
     # print("return value is {}".format(retval))
     LOGGER.info("return value is %s", retval)
-
+    connection.close()
     return retval
 
 
