@@ -144,6 +144,7 @@ def kick_off_job():
 
     # create a job directory:
     job_dir = "{}{}".format(APP.config["JOB_DIR"], jsons["timestamp"])
+    job_dir = os.path.abspath(job_dir)
     os.mkdir(job_dir)
 
     # move file(s) to jobs directory:
@@ -151,7 +152,8 @@ def kick_off_job():
         "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"]),
         "{}/{}".format(job_dir, jsons["file1"]),
     )
-    if jsons["file2"] is not None or jsons["file2"] != "":
+
+    if jsons["file2"] is not None and jsons["file2"] != "":
         os.rename(
             "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file2"]),
             "{}/{}".format(job_dir, jsons["file2"]),
@@ -169,6 +171,8 @@ def kick_off_job():
         jsons["unionauc"],
         jsons["output_prefix"],
     )
+    # if True:
+    #     return json.dumps('{"status": "ok"}')
     print("task id is")
     print(task.task_id)
     return json.dumps(dict(taskId=task.task_id))
@@ -237,13 +241,6 @@ def main_route():
     "default route"
     timestamp = datetime.datetime.now().isoformat()
     return render_template("index.html", timestamp=timestamp)
-
-
-@APP.route("/i")
-def main_route2():
-    "default route2"
-    timestamp = datetime.datetime.now().isoformat()
-    return render_template("i.html", timestamp=timestamp)
 
 
 @APP.route("/submit", methods=["POST"])

@@ -108,7 +108,6 @@ getFileName = function (file1or2) {
 kickOffJob = function () {
     console.log("in kickOffJob()");
     $("#console-hideme").show();
-    $("#fileupload").hide();
     //    $("#console").append('<span style="font-family: Courier New; color: orange;">dlkjfdlkjfhdf lfkdjhdlkjfhd lkjfhd<br/></span>');
     // console.log("FIXME!");
     // if (true) return;
@@ -131,6 +130,8 @@ kickOffJob = function () {
     }).done(function (msg) {
         console.log("in kickOffJob done callback, message is");
         console.log(msg);
+        console.log("task id is " + msg['taskId']);
+        pollJob(msg['taskId']);
         // TODO start polling server to see when job ends,
         // displaying log messages if possible.
         // like this:
@@ -141,6 +142,59 @@ kickOffJob = function () {
         // and also add a button to reload page if you want to run another analysis.
 
     });
+}
+
+function serveResultFiles(taskId) {
+    console.log("in serveResultFiles");
+}
+
+function handleTaskFailure(obj) {
+    // TODO show any error messages and nonzero result code in UI
+    console.log("in handleTaskFailure");
+}
+
+var seenLogMessages = {};
+
+function updateTaskUi(obj) {
+    console.log("in updateTaskUi");
+    var previousState = $("#task_status").html();
+    var currentState = obj['state'];
+    if (previousState != currentState) {
+        $("#task_status").html(currentState);
+    }
+    var color = 'black';
+    if (obj['log_obj'] != null) {
+        if (!seenLogMessages.hasOwnProperty(obj['log_obj'])) {
+            seenLogMessages[obj['log_obj']] = 1;
+            if (obj['log_obj']['stream'] == "STDERR") color = "red";
+            var msg = obj['log_obj']['data'].replace("\n", "<br/>\n");
+            $("#console").append('<span style="font-family: Courier New; color: ' + color + ';">' + msg + '<br/></span>');
+        }
+    }
+}
+
+pollJob = function (taskId) {
+    console.log("in pollJob()");
+    var finalStates = ['SUCCESS', 'FAILURE', 'REVOKED'];
+    (function poll() {
+        setTimeout(function () {
+            $.getJSON("/get_job_status", { job_id: taskId }, function (obj) {
+                console.log(obj);
+                // handle log messages & console state here
+                updateTaskUi(obj);
+                if (finalStates.indexOf(obj['state']) > -1) {
+                    if (obj['state'] == 'SUCCESS') {
+                        serveResultFiles(taskId);
+                    } else {
+                        handleTaskFailure(obj);
+                    }
+                    console.log("exiting polling loop, we hope....");
+                    return;
+                }
+                poll();
+            });
+        }, 1000);
+    })();
 }
 
 $(function () {
@@ -178,8 +232,11 @@ $(function () {
                     expectedNumberOfUploads += 1;
                 }
                 $("#progress-container").show();
+                $("#fileupload").hide();
+
                 if (expectedNumberOfUploads == 1) {
                     $("#control-progress-container").hide();
+                    $("#global-progress-container").hide();
                 }
             }
             return valid;
