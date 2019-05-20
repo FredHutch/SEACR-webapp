@@ -173,6 +173,9 @@ def run_seacr(
     retval = async_result.get()
     # print("return value is {}".format(retval))
     LOGGER.info("return value is %s", retval)
+    if retval[0] == 0:
+        result_files = [x for x in os.listdir(".") if x.startswith(output_prefix)]
+        retval = (retval, result_files)
     connection.close()
     return retval
 
