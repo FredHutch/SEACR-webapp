@@ -61,6 +61,7 @@ cleanup = function () {
 }
 
 validate = function () {
+    // TODO do not allow the '.' character in output prefixes!
     // TODO validate file name extensions, only allow .bedgraph extension
     // and any other stuff (file size) that is handled by the framework
     console.log("in validate function");
@@ -144,8 +145,20 @@ kickOffJob = function () {
     });
 }
 
-function serveResultFiles(taskId) {
+function serveResultFiles(taskId, obj) {
     console.log("in serveResultFiles");
+    console.log("taskId is " + taskId);
+    console.log("obj is:");
+    console.log(obj);
+    var resultFiles = obj['info'][1];
+    console.log("number of result files: " + resultFiles.length);
+    var html = "";
+    for (var i = 0; i < resultFiles.length; i++) {
+        var resultFile = resultFiles[i];
+        html += '<a href="/send_file/' + jobTimestamp + '/' + $("#outputprefix").val() +'/' +i+'">Download result file ' + resultFile + '</a>&nbsp;'
+    }
+    $("#results-container").show();
+    $("#results").append(html);
 }
 
 function handleTaskFailure(obj) {
@@ -156,20 +169,32 @@ function handleTaskFailure(obj) {
 var seenLogMessages = {};
 
 function updateTaskUi(obj) {
-    console.log("in updateTaskUi");
+    console.log("!!!!in updateTaskUi");
+    console.log("1~~~");
     var previousState = $("#task_status").html();
     var currentState = obj['state'];
+    console.log("2");
     if (previousState != currentState) {
         $("#task_status").html(currentState);
     }
+    console.log("3");
     var color = 'black';
     if (obj['log_obj'] != null) {
-        if (!seenLogMessages.hasOwnProperty(obj['log_obj'])) {
+        console.log("log message is not null");
+        console.log(obj['log_obj']);
+        //if (!seenLogMessages.hasOwnProperty(obj['log_obj'])) {
+        if (true) {
+            console.log("we have not seen this log message before");
             seenLogMessages[obj['log_obj']] = 1;
             if (obj['log_obj']['stream'] == "STDERR") color = "red";
             var msg = obj['log_obj']['data'].replace("\n", "<br/>\n");
             $("#console").append('<span style="font-family: Courier New; color: ' + color + ';">' + msg + '<br/></span>');
-        }
+         } else {
+             console.log("we have seen this log message before")
+         }
+
+    } else {
+        console.log("log obj is null");
     }
 }
 
@@ -184,7 +209,7 @@ pollJob = function (taskId) {
                 updateTaskUi(obj);
                 if (finalStates.indexOf(obj['state']) > -1) {
                     if (obj['state'] == 'SUCCESS') {
-                        serveResultFiles(taskId);
+                        serveResultFiles(taskId, obj);
                     } else {
                         handleTaskFailure(obj);
                     }

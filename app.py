@@ -10,7 +10,7 @@ import datetime
 import json
 import os
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from flask_bootstrap import Bootstrap
 
 import pika
@@ -161,16 +161,23 @@ def kick_off_job():
 
     # NOTE: hardcoding SEACR version here
     seacr_path = os.path.dirname(os.path.abspath(__file__)) + "/SEACR/" + "SEACR_1.0.sh"
-    task = run_seacr.delay(
-        job_dir,
-        seacr_path,
-        jsons["file1"],
-        jsons["file2"],
-        jsons["threshold"],
-        jsons["normnon"],
-        jsons["unionauc"],
-        jsons["output_prefix"],
-    )
+
+    while True:
+        try:
+            print("trying run_seacr.....")
+            task = run_seacr.delay(
+                job_dir,
+                seacr_path,
+                jsons["file1"],
+                jsons["file2"],
+                jsons["threshold"],
+                jsons["normnon"],
+                jsons["unionauc"],
+                jsons["output_prefix"],
+            )
+            break
+        except:
+            pass
     # if True:
     #     return json.dumps('{"status": "ok"}')
     print("task id is")
@@ -248,6 +255,24 @@ def submit():
     "submit job"
     print("files are {}".format(request.files))
     return "OK"
+
+@APP.route("/send_file/<job_dir>/<prefix>/<path:filenum>", methods=["GET"])
+def send_file_to_user(filenum, prefix, job_dir):
+    # if True:
+    #     return APP.config['JOB_DIR']
+    "send file to user"
+    try:
+        int(job_dir)
+        int(filenum)
+    except ValueError:
+        return simplejson.dumps({"error": "invalid values"})
+    for char in ["/", ".", "\\"]:
+        if char in prefix:
+            return simplejson.dumps({"error": "invalid values"})
+    full_job_dir = APP.config["JOB_DIR"] + job_dir
+    result_files = [x for x in os.listdir(full_job_dir) if x.startswith(prefix)]
+    result_file = os.path.join(full_job_dir, result_files[int(filenum)])
+    return send_file(result_file, as_attachment=True)
 
 
 if __name__ == "__main__":

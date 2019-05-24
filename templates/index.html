@@ -195,6 +195,11 @@
     </div>
 
 
+    <div id="results-container" class="row" style="display: none;">
+        <h2>Results:</h2>
+        <div id="results"></div>
+    </div>
+
 </div>
 {# The blueimp Gallery widget #}
 <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
@@ -351,7 +356,7 @@
 {# The File Upload user interface plugin #}
 <script src="static/js/jquery.fileupload-ui.js"></script>
 {# The main application script #}
-<script src="static/js/main.js"></script>
+<script src="static/js/main.js?timestamp={{timestamp}}"></script>
 {# The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 #}
 {#[if (gte IE 8)&(lt IE 10)]>
 <script src="js/cors/jquery.xdr-transport.js"></script>
