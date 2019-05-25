@@ -140,12 +140,7 @@ def run_seacr(
                 exchange="",
                 routing_key=self.request.id,
                 body=json.dumps(
-                    dict(
-                        stream="STDERR",
-                        data=newerr,
-                        timestamp=enow,
-                        count=errcount,
-                    )
+                    dict(stream="STDERR", data=newerr, timestamp=enow, count=errcount)
                 ),
             )
             errcount += 1
@@ -160,12 +155,7 @@ def run_seacr(
                 exchange="",
                 routing_key=self.request.id,
                 body=json.dumps(
-                    dict(
-                        stream="STDOUT",
-                        data=newout,
-                        timestamp=onow,
-                        count=outcount,
-                    )
+                    dict(stream="STDOUT", data=newout, timestamp=onow, count=outcount)
                 ),
             )
             outcount += 1

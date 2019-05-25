@@ -165,7 +165,7 @@ def kick_off_job():
                 jsons["output_prefix"],
             )
             break
-        except: # pylint: disable=bare-except
+        except:  # pylint: disable=bare-except
             pass
     # if True:
     #     return json.dumps('{"status": "ok"}')
@@ -245,6 +245,7 @@ def submit():
     "submit job"
     print("files are {}".format(request.files))
     return "OK"
+
 
 @APP.route("/send_file/<job_dir>/<prefix>/<path:filenum>", methods=["GET"])
 def send_file_to_user(filenum, prefix, job_dir):
