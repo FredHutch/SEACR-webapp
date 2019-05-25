@@ -62,7 +62,6 @@ cleanup = function () {
 }
 
 validate = function () {
-    // TODO do not allow the '.' character in output prefixes!
     // TODO validate file name extensions, only allow .bedgraph extension
     // and any other stuff (file size) that is handled by the framework
     var errors = [];
@@ -143,7 +142,10 @@ function serveResultFiles(taskId, obj) {
     var html = "";
     for (var i = 0; i < resultFiles.length; i++) {
         var resultFile = resultFiles[i];
-        html += '<a href="/send_file/' + jobTimestamp + '/' + $("#outputprefix").val() +'/' +i+'">Download result file ' + resultFile + '</a>&nbsp;'
+        html += '<a href="/send_file/' + 
+            jobTimestamp + '/' + $("#outputprefix").val() +
+               '/' + i + '">Download result file ' + resultFile + 
+               '</a>&nbsp;'
     }
     $("#scroll_to_me").get(0).scrollIntoView();
     $("#results-container").show();
@@ -168,24 +170,19 @@ function updateTaskUi(obj) {
         if (true) {
             seenLogMessages[obj['log_obj']] = 1;
             console.log(obj);
-            console.log(obj['log_obj']['data']);
-            var tsStr = obj['log_obj']['timestamp'];
-            console.log("iso timestamp is " + tsStr);
-            var timestamp = new Date(obj['log_obj']['timestamp']);
-            var diff = Math.abs(new Date() - timestamp);
-            console.log("diff is " + diff);
-            if (diff > 60000) {
-                console.log("this message is too old, timestamp is " + timestamp);
+            if (obj['log_obj']['data'].length > 600 && obj['log_obj']['data'].indexOf("Done:") > -1) {
+                console.log("This message does not belong here.");
                 return;
             }
+            console.log(obj['log_obj']['data']);
             if (obj['log_obj']['stream'] == "STDERR") color = "red";
             var msg = obj['log_obj']['data'].trim().replace("\n\n", "\n").split("\n").join("<br/>\n") + "<br/>\n";
             var html = '<span style="font-family: Courier New; color: ' + color + ';">' + msg + '</span>';
             $("#console").append(html);
             $("#scroll_to_me").get(0).scrollIntoView();
-         } else {
-             console.log("we have seen this log message before")
-         }
+        } else {
+            console.log("we have seen this log message before")
+        }
 
     } else {
         console.log("log obj is null");
@@ -231,12 +228,8 @@ $(function () {
         autoUpload: false, // Does not seem necessary?
         dropZone: null,
         submit: function (e, data) {
-            // TODO add form validation here, return
-            // true/false depending on whether form is valid.
             var valid = validate();
             if (valid && expectedNumberOfUploads == 0) {
-                // TODO disable form at this point and show
-                // upload progress indicators
                 if (!isEmpty($("#file1").attr('placeholder'))) {
                     expectedNumberOfUploads += 1;
                 }

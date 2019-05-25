@@ -156,10 +156,6 @@ def run_seacr(
             LOGGER.info("new STDOUT output is %s", newout)
             print(newout)
             outlen = len(outs)
-            # self.update_state(
-            #     state="PROGRESS",
-            #     meta={"STDOUT": newout, "timestamp": onow, "count": outcount},
-            # )
             channel.basic_publish(
                 exchange="",
                 routing_key=self.request.id,
@@ -177,7 +173,6 @@ def run_seacr(
         time.sleep(0.05)
     print("done")
     retval = async_result.get()
-    # print("return value is {}".format(retval))
     LOGGER.info("return value is %s", retval)
     if retval[0] == 0:
         result_files = [x for x in os.listdir(".") if x.startswith(output_prefix)]
