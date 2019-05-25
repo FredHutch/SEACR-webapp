@@ -127,7 +127,7 @@ def run_seacr(
         errs = err.getvalue()
         outs = out.getvalue()
         if len(errs) > errlen:
-            enow = datetime.datetime.now()
+            enow = datetime.datetime.utcnow().isoformat()
             newerr = errs[errlen : len(errs)]
             LOGGER.info("new STDERR output is %s", newerr)
 
@@ -143,7 +143,7 @@ def run_seacr(
                     dict(
                         stream="STDERR",
                         data=newerr,
-                        timestamp=datetime_to_number(enow),
+                        timestamp=enow,
                         count=errcount,
                     )
                 ),
@@ -151,7 +151,7 @@ def run_seacr(
             errcount += 1
 
         if len(outs) > outlen:
-            onow = datetime.datetime.now()
+            onow = datetime.datetime.utcnow().isoformat()
             newout = outs[outlen : len(outs)]
             LOGGER.info("new STDOUT output is %s", newout)
             print(newout)
@@ -167,7 +167,7 @@ def run_seacr(
                     dict(
                         stream="STDOUT",
                         data=newout,
-                        timestamp=datetime_to_number(onow),
+                        timestamp=onow,
                         count=outcount,
                     )
                 ),

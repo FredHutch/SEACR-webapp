@@ -15,6 +15,7 @@ var filesUploadedSuccessfully = 0;
 var expectedNumberOfUploads = 0;
 var uploadedFiles = [];
 var jobTimestamp = null;
+var taskId = null;
 
 function pad(num, size) {
     var s = num + "";
@@ -131,6 +132,8 @@ kickOffJob = function () {
             output_prefix: $("#outputprefix").val()
         })
     }).done(function (msg) {
+        taskId = msg['taskId'];
+        console.log("celery task id is " + taskId);
         pollJob(msg['taskId']);
     });
 }
@@ -164,15 +167,21 @@ function updateTaskUi(obj) {
         // if (!seenLogMessages.hasOwnProperty(obj['log_obj'])) {
         if (true) {
             seenLogMessages[obj['log_obj']] = 1;
-            if (obj['log_obj']['stream'] == "STDERR") color = "red";
-            console.log("before:");
+            console.log(obj);
             console.log(obj['log_obj']['data']);
-            var msg = obj['log_obj']['data'].trim().replace("\n\n", "\n").replace("\r", "\n").replace("\n", "<br/>\n") + "<br/>\n";
+            var tsStr = obj['log_obj']['timestamp'];
+            console.log("iso timestamp is " + tsStr);
+            var timestamp = new Date(obj['log_obj']['timestamp']);
+            var diff = Math.abs(new Date() - timestamp);
+            console.log("diff is " + diff);
+            if (diff > 60000) {
+                console.log("this message is too old, timestamp is " + timestamp);
+                return;
+            }
+            if (obj['log_obj']['stream'] == "STDERR") color = "red";
+            var msg = obj['log_obj']['data'].trim().replace("\n\n", "\n").split("\n").join("<br/>\n") + "<br/>\n";
             var html = '<span style="font-family: Courier New; color: ' + color + ';">' + msg + '</span>';
             $("#console").append(html);
-            console.log("after:");
-            console.log(msg); // leave me alone
-            console.log("-------------------------");
             $("#scroll_to_me").get(0).scrollIntoView();
          } else {
              console.log("we have seen this log message before")
