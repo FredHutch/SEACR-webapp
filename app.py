@@ -4,47 +4,34 @@
 Application.
 """
 
-from tasks import run_seacr
 
 import datetime
 import json
 import os
 
-from flask import Flask, render_template, request, send_file
+
+from flask import Flask, redirect, render_template, request, send_file, url_for
 from flask_bootstrap import Bootstrap
 
 import pika
 
-# ----
-
-
-# import PIL
-# from PIL import Image
 import simplejson
-import traceback
 
-from flask import (
-    Flask,
-    request,
-    render_template,
-    redirect,
-    url_for,
-    send_from_directory,
-)
-from flask_bootstrap import Bootstrap
 from werkzeug import secure_filename  # pylint: disable=no-name-in-module
 
 from lib.upload_file import uploadfile
 
+from tasks import run_seacr
 
-def create_APP():
+
+def create_app():
     "APP creation"
-    APP = Flask(__name__)
-    Bootstrap(APP)
-    return APP
+    app = Flask(__name__)
+    Bootstrap(app)
+    return app
 
 
-APP = create_APP()
+APP = create_app()
 
 # FIXME/TODO move secret_key into env var
 APP.config["SECRET_KEY"] = "hard to guess string"
@@ -77,6 +64,7 @@ IGNORED_FILES = set([".gitignore"])
 
 
 def allowed_file(filename):
+    "is file allowed to be uploaded?"
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
@@ -111,7 +99,6 @@ def get_job_status():
     log_msg = None
     log_obj = None
     if method_frame:
-        got_log_msg = True
         print(method_frame, header_frame, body)
         log_msg = body.decode("utf-8")
         log_obj = json.loads(log_msg)
@@ -178,7 +165,7 @@ def kick_off_job():
                 jsons["output_prefix"],
             )
             break
-        except:
+        except: # pylint: disable=bare-except
             pass
     # if True:
     #     return json.dumps('{"status": "ok"}')
@@ -189,6 +176,7 @@ def kick_off_job():
 
 @APP.route("/upload", methods=["GET", "POST"])
 def upload():
+    "file upload route"
     if request.method == "POST":
         key = list(request.files.keys())[0]  # TODO ensure keys() is not empty
         files = request.files[key]
@@ -235,9 +223,9 @@ def upload():
 
         file_display = []
 
-        for f in files:
-            size = os.path.getsize(os.path.join(APP.config["UPLOAD_FOLDER"], f))
-            file_saved = uploadfile(name=f, size=size)
+        for file in files:
+            size = os.path.getsize(os.path.join(APP.config["UPLOAD_FOLDER"], file))
+            file_saved = uploadfile(name=file, size=size)
             file_display.append(file_saved.get_file())
 
         return simplejson.dumps({"files": file_display})

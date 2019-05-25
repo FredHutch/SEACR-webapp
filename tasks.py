@@ -24,8 +24,8 @@ APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@localhost//")
 
 # APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@fieldroast//")
 
-err = io.StringIO()
-out = io.StringIO()
+ERR = io.StringIO()
+OUT = io.StringIO()
 
 
 def datetime_to_number(dtm):
@@ -115,7 +115,7 @@ def run_seacr(
     env = {}
     if os.uname()[0] == "Darwin":
         env["LC_ALL"] = "C"
-    kwargs = dict(_err=err, _out=out, _env=env, seacr_command=seacr_command)
+    kwargs = dict(_err=ERR, _out=OUT, _env=env, seacr_command=seacr_command)
     # seacr = sh.Command(seacr_command)
     pool = ThreadPool(processes=1)
     async_result = pool.apply_async(seacr_wrapper, args, kwargs)
@@ -124,8 +124,8 @@ def run_seacr(
     errcount = 0
     outcount = 0
     while not async_result.ready():
-        errs = err.getvalue()
-        outs = out.getvalue()
+        errs = ERR.getvalue()
+        outs = OUT.getvalue()
         if len(errs) > errlen:
             enow = datetime.datetime.utcnow().isoformat()
             newerr = errs[errlen : len(errs)]
