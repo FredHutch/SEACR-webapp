@@ -60,6 +60,7 @@ def seacr_wrapper(*args, **kwargs):
         del kwargs["seacr_command"]
         result = seacr(*args, **kwargs)
         LOGGER.info("success!")
+        time.sleep(2)
         return (result.exit_code, "success")
     except sh.ErrorReturnCode as shex:
         # TODO log some stuff here
@@ -67,6 +68,7 @@ def seacr_wrapper(*args, **kwargs):
         # or a tuple of both?
         LOGGER.info("shell exception is %s", shex)
         # but it does!
+        time.sleep(2)
         return (shex.exit_code, str(shex))  # pylint: disable=no-member
     except:  # pylint: disable=bare-except
         exc = sys.exc_info()[0]
@@ -74,6 +76,7 @@ def seacr_wrapper(*args, **kwargs):
         # TODO log some stuff here
         # TODO maybe return exception message instead of exit code,
         # or a tuple of both?
+        time.sleep(2)
         return (-666, str(exc))
 
 
@@ -126,6 +129,8 @@ def run_seacr(
         if len(errs) > errlen:
             enow = datetime.datetime.now()
             newerr = errs[errlen : len(errs)]
+            LOGGER.info("new STDERR output is %s", newerr)
+
             print(newerr)
             errlen = len(errs)
             # self.update_state(
@@ -148,6 +153,7 @@ def run_seacr(
         if len(outs) > outlen:
             onow = datetime.datetime.now()
             newout = outs[outlen : len(outs)]
+            LOGGER.info("new STDOUT output is %s", newout)
             print(newout)
             outlen = len(outs)
             # self.update_state(
@@ -168,7 +174,7 @@ def run_seacr(
             )
             outcount += 1
 
-        time.sleep(0.2)
+        time.sleep(0.05)
     print("done")
     retval = async_result.get()
     # print("return value is {}".format(retval))

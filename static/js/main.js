@@ -64,7 +64,6 @@ validate = function () {
     // TODO do not allow the '.' character in output prefixes!
     // TODO validate file name extensions, only allow .bedgraph extension
     // and any other stuff (file size) that is handled by the framework
-    console.log("in validate function");
     var errors = [];
     var file1 = $("#file1").attr('placeholder');
     if (isEmpty(file1)) {
@@ -91,6 +90,14 @@ validate = function () {
     if (outputprefix == "") {
         errors.push("Select an output prefix.");
     }
+    var badchars = ['.', '/', '\\'];
+    for (var i = 0; i < badchars.length; i++) {
+        var ch = badchars[i];
+        if (outputprefix.indexOf(ch) > -1) {
+            errors.push("Output prefix cannot contain '.', '/', or '\\'.");
+            break;
+        }
+    }
     if (errors.length > 0) {
         $("#error_list").html(errors.join("<br>"));
         $("#validation_failure_modal").modal();
@@ -107,13 +114,8 @@ getFileName = function (file1or2) {
 }
 
 kickOffJob = function () {
-    console.log("in kickOffJob()");
     $("#console-hideme").show();
-    //    $("#console").append('<span style="font-family: Courier New; color: orange;">dlkjfdlkjfhdf lfkdjhdlkjfhd lkjfhd<br/></span>');
-    // console.log("FIXME!");
-    // if (true) return;
     jobTimestamp = getTimestamp();
-    console.log("set job timestamp to " + jobTimestamp);
     $.ajax({
         contentType: "application/json;charset=UTF-8",
         dataType: "json",
@@ -129,66 +131,49 @@ kickOffJob = function () {
             output_prefix: $("#outputprefix").val()
         })
     }).done(function (msg) {
-        console.log("in kickOffJob done callback, message is");
-        console.log(msg);
-        console.log("task id is " + msg['taskId']);
         pollJob(msg['taskId']);
-        // TODO start polling server to see when job ends,
-        // displaying log messages if possible.
-        // like this:
-        // $.getJSON("/get_job_status", {job_id: "2112"}, function(msg) {console.log(msg)} );
-        // but do it in a timer loop
-        // see https://techoctave.com/c7/posts/60-simple-long-polling-example-with-javascript-and-jquery
-        // after we're done, link to output files 
-        // and also add a button to reload page if you want to run another analysis.
-
     });
 }
 
 function serveResultFiles(taskId, obj) {
-    console.log("in serveResultFiles");
-    console.log("taskId is " + taskId);
-    console.log("obj is:");
-    console.log(obj);
     var resultFiles = obj['info'][1];
-    console.log("number of result files: " + resultFiles.length);
     var html = "";
     for (var i = 0; i < resultFiles.length; i++) {
         var resultFile = resultFiles[i];
         html += '<a href="/send_file/' + jobTimestamp + '/' + $("#outputprefix").val() +'/' +i+'">Download result file ' + resultFile + '</a>&nbsp;'
     }
+    $("#scroll_to_me").get(0).scrollIntoView();
     $("#results-container").show();
     $("#results").append(html);
 }
 
 function handleTaskFailure(obj) {
     // TODO show any error messages and nonzero result code in UI
-    console.log("in handleTaskFailure");
 }
 
 var seenLogMessages = {};
 
 function updateTaskUi(obj) {
-    console.log("!!!!in updateTaskUi");
-    console.log("1~~~");
     var previousState = $("#task_status").html();
     var currentState = obj['state'];
-    console.log("2");
     if (previousState != currentState) {
         $("#task_status").html(currentState);
     }
-    console.log("3");
     var color = 'black';
     if (obj['log_obj'] != null) {
-        console.log("log message is not null");
-        console.log(obj['log_obj']);
-        //if (!seenLogMessages.hasOwnProperty(obj['log_obj'])) {
+        // if (!seenLogMessages.hasOwnProperty(obj['log_obj'])) {
         if (true) {
-            console.log("we have not seen this log message before");
             seenLogMessages[obj['log_obj']] = 1;
             if (obj['log_obj']['stream'] == "STDERR") color = "red";
-            var msg = obj['log_obj']['data'].replace("\n", "<br/>\n");
-            $("#console").append('<span style="font-family: Courier New; color: ' + color + ';">' + msg + '<br/></span>');
+            console.log("before:");
+            console.log(obj['log_obj']['data']);
+            var msg = obj['log_obj']['data'].trim().replace("\n\n", "\n").replace("\r", "\n").replace("\n", "<br/>\n") + "<br/>\n";
+            var html = '<span style="font-family: Courier New; color: ' + color + ';">' + msg + '</span>';
+            $("#console").append(html);
+            console.log("after:");
+            console.log(msg); // leave me alone
+            console.log("-------------------------");
+            $("#scroll_to_me").get(0).scrollIntoView();
          } else {
              console.log("we have seen this log message before")
          }
@@ -199,12 +184,10 @@ function updateTaskUi(obj) {
 }
 
 pollJob = function (taskId) {
-    console.log("in pollJob()");
     var finalStates = ['SUCCESS', 'FAILURE', 'REVOKED'];
     (function poll() {
         setTimeout(function () {
             $.getJSON("/get_job_status", { job_id: taskId }, function (obj) {
-                console.log(obj);
                 // handle log messages & console state here
                 updateTaskUi(obj);
                 if (finalStates.indexOf(obj['state']) > -1) {
@@ -213,7 +196,6 @@ pollJob = function (taskId) {
                     } else {
                         handleTaskFailure(obj);
                     }
-                    console.log("exiting polling loop, we hope....");
                     return;
                 }
                 poll();
@@ -227,11 +209,8 @@ $(function () {
 
     cleanup();
     $("#submitbutton").bind('click', function () {
-        console.log("u clicked submit");
         if (fileSelected()) {
-            console.log("a file is selected");
         } else {
-            console.log("no files are selected");
             return validate();
         }
     });
@@ -243,7 +222,6 @@ $(function () {
         autoUpload: false, // Does not seem necessary?
         dropZone: null,
         submit: function (e, data) {
-            console.log("in submit callback");
             // TODO add form validation here, return
             // true/false depending on whether form is valid.
             var valid = validate();
@@ -268,37 +246,22 @@ $(function () {
         },
         // NOTE: Looks like just having 
         // an add() function stops the submit button
-        // from working. 
-        // add: function(e, data) {
-        //     console.log("in add function");
-        //     // TODO track files added in a global array
-        //     // $.each(data.files, function (index, file) {
-        //     //     console.log('Added file: ' + file.name);
-        //     // });
-        //     // return true;
-        // },
         done: function (e, data) {
             // TODO track state of which files have been uploaded
             if (data.result['files'][0]['name'] == ".placeholder") return
-            console.log("Upload done, file " + data.result['files'][0]['name'])
-            console.log("result was " + data.textStatus)
             uploadedFiles.push(data.result['files'][0]['name']);
             filesUploadedSuccessfully += 1;
             if (filesUploadedSuccessfully == expectedNumberOfUploads) {
-                console.log("all expected files have uploaded successfully!");
                 $("#progress-container").hide();
                 // now do stuff...
                 kickOffJob();
             }
         },
         send: function (e, data) {
-            console.log("in send callback");
         },
         fail: function (e, data) {
-            console.log("in fail callback");
         },
         always: function (e, data) {
-            console.log("in always callback");
         },
         progress: function (e, data) {
             var assoc = $(data['fileInput'][0]).attr('assoc');
@@ -323,23 +286,14 @@ $(function () {
             );
         },
         start: function (e, data) {
-            console.log("in start callback");
         },
         stop: function (e, data) {
-            console.log("in stop callback")
         }
 
 
 
     });
 
-    //attempt validation before submit
-    // $("#fileupload").bind('fileuploadsubmit', function(e, data) {
-    //     console.log("in validation function");
-    //     // TODO add form validation here, return
-    //     // true/false depending on whether form is valid.
-    //     return true;
-    // });
 
     // Enable iframe cross-domain access via redirect option:
     $('#fileupload').fileupload(
@@ -399,17 +353,11 @@ $(function () {
 /////
 
 $(document).ready(function () {
-    console.log("in doc ready function");
 
     $(':file').attr('placeholder', '');
 
-    $("#file1").bind('change', function () {
-        console.log("does this work?");
-    });
     $(':file').bind('change', function () {
-        console.log("in change event handler");
         var assoc = $(this).attr('assoc');
-        console.log("assoc is " + assoc);
 
         var arr = $(this).val().split("\\");
         var name = arr[arr.length - 1];
@@ -417,7 +365,6 @@ $(document).ready(function () {
     });
 
     $(':file').on('fileselect', function (event, numFiles, label) {
-        console.log("fileselect triggered");
         var input = $(this).parents('.input-group').find(':text'),
             log = numFiles > 1 ? numFiles + ' files selected' : label;
 

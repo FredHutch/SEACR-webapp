@@ -108,7 +108,6 @@ def get_job_status():
     channel = connection.channel()
     # TODO handle exception here if queue does not exist:
     method_frame, header_frame, body = channel.basic_get(job_id)
-    got_log_msg = False
     log_msg = None
     log_obj = None
     if method_frame:
@@ -127,7 +126,10 @@ def get_job_status():
     res = run_seacr.AsyncResult(task_id=job_id)
     #    print(f'State={result.state}, info={result.info}')
 
-    return json.dumps({"state": res.state, "info": res.info, "log_obj": log_obj})
+    retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+    print("returning:")
+    print(retval)
+    return json.dumps(retval)
 
 
 @APP.route("/kick_off_job", methods=["POST"])
