@@ -26,12 +26,25 @@ function pad(num, size) {
 getTimestamp = function () {
     var now = new Date()
     var locale = "en-US";
-    var out = now.toLocaleString(locale, { year: 'numeric' });
-    out += now.toLocaleString(locale, { month: '2-digit' });
-    out += now.toLocaleString(locale, { day: '2-digit' });
-    out += now.toLocaleString("en-US", { hour: '2-digit', hour12: false });
-    out += now.toLocaleString("en-US", { minute: '2-digit' });
-    out += now.toLocaleString("en-US", { second: '2-digit' });
+    var out = now.toLocaleString(locale, {
+        year: 'numeric'
+    });
+    out += now.toLocaleString(locale, {
+        month: '2-digit'
+    });
+    out += now.toLocaleString(locale, {
+        day: '2-digit'
+    });
+    out += now.toLocaleString("en-US", {
+        hour: '2-digit',
+        hour12: false
+    });
+    out += now.toLocaleString("en-US", {
+        minute: '2-digit'
+    });
+    out += now.toLocaleString("en-US", {
+        second: '2-digit'
+    });
     out += pad(now.getMilliseconds(), 4);
     return out;
 }
@@ -142,10 +155,10 @@ function serveResultFiles(taskId, obj) {
     var html = "";
     for (var i = 0; i < resultFiles.length; i++) {
         var resultFile = resultFiles[i];
-        html += '<a href="/send_file/' + 
+        html += '<a href="/send_file/' +
             jobTimestamp + '/' + $("#outputprefix").val() +
-               '/' + i + '">Download result file ' + resultFile + 
-               '</a>&nbsp;'
+            '/' + i + '">Download result file ' + resultFile +
+            '</a>&nbsp;'
     }
     $("#scroll_to_me").get(0).scrollIntoView();
     $("#results-container").show();
@@ -193,7 +206,9 @@ pollJob = function (taskId) {
     var finalStates = ['SUCCESS', 'FAILURE', 'REVOKED'];
     (function poll() {
         setTimeout(function () {
-            $.getJSON("/get_job_status", { job_id: taskId }, function (obj) {
+            $.getJSON("/get_job_status", {
+                job_id: taskId
+            }, function (obj) {
                 // handle log messages & console state here
                 updateTaskUi(obj);
                 if (finalStates.indexOf(obj['state']) > -1) {
@@ -215,8 +230,7 @@ $(function () {
 
     cleanup();
     $("#submitbutton").bind('click', function () {
-        if (fileSelected()) {
-        } else {
+        if (fileSelected()) { } else {
             return validate();
         }
     });
@@ -259,12 +273,9 @@ $(function () {
                 kickOffJob();
             }
         },
-        send: function (e, data) {
-        },
-        fail: function (e, data) {
-        },
-        always: function (e, data) {
-        },
+        send: function (e, data) { },
+        fail: function (e, data) { },
+        always: function (e, data) { },
         progress: function (e, data) {
             var assoc = $(data['fileInput'][0]).attr('assoc');
             var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -287,10 +298,8 @@ $(function () {
                 progress + '%'
             );
         },
-        start: function (e, data) {
-        },
-        stop: function (e, data) {
-        }
+        start: function (e, data) { },
+        stop: function (e, data) { }
 
 
 
@@ -346,7 +355,9 @@ $(function () {
             $(this).removeClass('fileupload-processing');
         }).done(function (result) {
             $(this).fileupload('option', 'done')
-                .call(this, $.Event('done'), { result: result });
+                .call(this, $.Event('done'), {
+                    result: result
+                });
         });
     }
 
@@ -378,4 +389,3 @@ $(document).ready(function () {
 
     });
 });
-
