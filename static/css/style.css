@@ -4,3 +4,32 @@ body {
   padding-top: 60px;
 }
 */
+
+.placeholder::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color:    #909;
+    font-weight: bold;
+}
+.placeholder:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color:    #909;
+   opacity:  1;
+   font-weight: bold;
+}
+.placeholder::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color:    #909;
+   opacity:  1;
+   font-weight: bold;
+
+  }
+.placeholder:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color:    #909;
+   font-weight: bold;
+}
+.placeholder::-ms-input-placeholder { /* Microsoft Edge */
+   color:    #909;
+   font-weight: bold;
+}
+
+.placeholder::placeholder { /* Most modern browsers support this now. */
+   color:    #909;
+   font-weight: bold;
+}

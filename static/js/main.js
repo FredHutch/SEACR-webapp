@@ -375,6 +375,8 @@ $(document).ready(function () {
         var arr = $(this).val().split("\\");
         var name = arr[arr.length - 1];
         $("#" + assoc).attr('placeholder', name);
+        $("#" + assoc).addClass("placeholder");
+
     });
 
     $(':file').on('fileselect', function (event, numFiles, label) {
