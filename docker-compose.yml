@@ -1,0 +1,32 @@
+version: '2'
+services:
+  rabbitmq:
+    image: rabbitmq:3
+    stdin_open: true
+    ports:
+      - "5672" # do we really need to expose this?
+    labels:
+      io.rancher.container.pull_image: always
+  webapp:
+    image: fredhutch/seacr # change to something in private registry?
+    stdin_open: true
+    ports:
+      - "8001:8001"
+    labels:
+      io.rancher.container.pull_image: always
+    volumes:
+      - seacr-data:/data
+
+    restart: always
+  celery:
+    image: fredhutch/seacr # ??
+    stdin_open: true
+    command: ./run-celery.sh
+    labels:
+      io.rancher.container.pull_image: always
+    volumes:
+      - seacr-data:/data
+    
+volumes:
+  seacr-data:
+    external: true

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-APP_SECRET=$(cat /run/secrets/BATCH_DASHBOARD_APP_SECRET)
-export APP_SECRET
+# APP_SECRET=$(cat /run/secrets/BATCH_DASHBOARD_APP_SECRET)
+# export APP_SECRET
 
 VENV=$(pipenv --venv)
 

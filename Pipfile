@@ -26,6 +26,7 @@ sh = "*"
 celery = "*"
 rq = "*"
 pika = "*"
+simplejson = "*"
 
 [requires]
 python_version = "3.6"

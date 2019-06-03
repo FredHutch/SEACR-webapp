@@ -18,9 +18,15 @@ from celery.utils.log import get_task_logger
 import pika
 import sh
 
+import util
+
 LOGGER = get_task_logger(__name__)
 
-APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@localhost//")
+APP = Celery(
+    "tasks",
+    backend="rpc://",
+    broker="pyamqp://guest@{}//".format(util.get_rabbit_host()),
+)
 
 # APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@fieldroast//")
 
@@ -96,7 +102,7 @@ def run_seacr(
     # TODO change to unique temp dir based on task id
     LOGGER.info("task id is %s", self.request.id)
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host="localhost")
+        pika.ConnectionParameters(host=util.get_rabbit_host())
     )  # TODO unhardcode hostname (use env var)
     channel = connection.channel()
     channel.queue_declare(queue=self.request.id)
