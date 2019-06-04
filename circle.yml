@@ -9,7 +9,7 @@ machine:
 
 dependencies:
   override:
-    - docker build -t $DOCKER_HUB_HOST/$DOCKER_USER/seacr:$CIRCLE_SHA1 .
+    - docker build -t $DOCKER_HUB_HOST/$DOCKER_ORG/seacr:$CIRCLE_SHA1 .
     - curl -LO https://releases.rancher.com/cli/v0.6.2/rancher-linux-amd64-v0.6.2.tar.gz
     - tar zxf rancher-linux-amd64-v0.6.2.tar.gz
     - curl -L https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` -o ./docker-compose
@@ -27,6 +27,6 @@ deployment:
   master:
     branch: master
     commands:
-      - docker tag $DOCKER_HUB_HOST/$DOCKER_USER/seacr:$CIRCLE_SHA1 $DOCKER_HUB_HOST/$DOCKER_USER/seacr:latest
-      - docker login -e fredhutch@fhcrc.org -u $DOCKER_USER -p "$DOCKER_PASS" $DOCKER_HUB_HOST && docker push $DOCKER_HUB_HOST/$DOCKER_USER/seacr:latest
+      - docker tag $DOCKER_HUB_HOST/$DOCKER_ORG/seacr:$CIRCLE_SHA1 $DOCKER_HUB_HOST/$DOCKER_ORG/seacr:latest
+      - docker login -e fredhutch@fhcrc.org -u $DOCKER_USER -p "$DOCKER_PASS" $DOCKER_HUB_HOST && docker push $DOCKER_HUB_HOST/$DOCKER_ORG/seacr:latest
       - rancher-v0.6.2/rancher --url https://ponderosa.fhcrc.org --access-key $RANCHERAPI_ACCESSKEY --secret-key $RANCHERAPI_SECRETKEY up -d --pull --force-upgrade --confirm-upgrade --stack seacr --file docker-compose.yml --rancher-file rancher-compose.yml
