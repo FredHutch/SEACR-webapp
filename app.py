@@ -8,6 +8,7 @@ Application.
 import datetime
 import json
 import os
+import shutil
 
 
 from flask import Flask, redirect, render_template, request, send_file, url_for
@@ -24,6 +25,7 @@ from lib.upload_file import uploadfile
 from tasks import run_seacr
 
 import util
+
 
 def create_app():
     "APP creation"
@@ -133,18 +135,18 @@ def kick_off_job():
     print(jsons.__class__)
 
     # create a job directory:
-    job_dir = "{}{}".format(APP.config["JOB_DIR"], jsons["timestamp"])
+    job_dir = "{}{}".format(util.get_job_directory(), jsons["timestamp"])
     job_dir = os.path.abspath(job_dir)
     os.mkdir(job_dir)
 
     # move file(s) to jobs directory:
-    os.rename(
+    shutil.move(
         "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"]),
         "{}/{}".format(job_dir, jsons["file1"]),
     )
 
     if jsons["file2"] is not None and jsons["file2"] != "":
-        os.rename(
+        shutil.move(
             "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file2"]),
             "{}/{}".format(job_dir, jsons["file2"]),
         )
@@ -250,8 +252,6 @@ def submit():
 
 @APP.route("/send_file/<job_dir>/<prefix>/<path:filenum>", methods=["GET"])
 def send_file_to_user(filenum, prefix, job_dir):
-    # if True:
-    #     return APP.config['JOB_DIR']
     "send file to user"
     try:
         int(job_dir)
@@ -261,7 +261,7 @@ def send_file_to_user(filenum, prefix, job_dir):
     for char in ["/", ".", "\\"]:
         if char in prefix:
             return simplejson.dumps({"error": "invalid values"})
-    full_job_dir = APP.config["JOB_DIR"] + job_dir
+    full_job_dir = util.get_job_directory() + job_dir
     result_files = [x for x in os.listdir(full_job_dir) if x.startswith(prefix)]
     result_file = os.path.join(full_job_dir, result_files[int(filenum)])
     return send_file(result_file, as_attachment=True)

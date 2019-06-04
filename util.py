@@ -21,3 +21,10 @@ def get_rabbit_host():
         return "rabbitmq"
     else:
         return "localhost"
+
+
+def get_job_directory():
+    "get job directory"
+    if on_docker():
+        return "/jobs/"
+    return os.path.abspath("jobs/")

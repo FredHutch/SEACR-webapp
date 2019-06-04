@@ -1,5 +1,6 @@
 version: '2'
 services:
+
   rabbitmq:
     image: rabbitmq:3
     stdin_open: true
@@ -7,6 +8,7 @@ services:
       - "5672" # do we really need to expose this?
     labels:
       io.rancher.container.pull_image: always
+
   webapp:
     image: fredhutch/seacr # change to something in private registry?
     stdin_open: true
@@ -15,9 +17,9 @@ services:
     labels:
       io.rancher.container.pull_image: always
     volumes:
-      - seacr-data:/data
-
+      - seacr-data:/jobs
     restart: always
+
   celery:
     image: fredhutch/seacr # ??
     stdin_open: true
@@ -25,7 +27,18 @@ services:
     labels:
       io.rancher.container.pull_image: always
     volumes:
-      - seacr-data:/data
+      - seacr-data:/jobs
+    restart: always
+
+  cron-cleaner:
+    image: fredhutch/seacr
+    stdin_open: true
+    command: "cron && tail -f /var/log/cron.log"
+    labels:
+      io.rancher.container.pull_image: always
+    volumes:
+      - seacr-data:/jobs
+    restart: always
     
 volumes:
   seacr-data:

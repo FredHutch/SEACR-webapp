@@ -21,7 +21,7 @@ RUN echo "tzdata tzdata/Areas select America" > /tmp/preseed.txt; \
     rm -f /etc/timezone && \
     rm -f /etc/localtime && \
     apt-get update && \
-    apt-get install -y tzdata python3-dev python3-pip r-base curl
+    apt-get install -y tzdata python3-dev python3-pip r-base curl cron
 
 ## cleanup of files from setup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -30,6 +30,10 @@ RUN curl -L -o /usr/local/bin/bedtools https://github.com/arq5x/bedtools2/releas
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
+
+RUN mkdir -p /etc/cron.d
+ADD crontab /etc/cron.d/clean-old-jobs
+RUN touch /var/log/cron.log
 
 
 COPY . /SEACR-webapp
