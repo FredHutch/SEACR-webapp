@@ -37,7 +37,7 @@ def create_app():
 APP = create_app()
 
 # FIXME/TODO move secret_key into env var
-APP.config["SECRET_KEY"] = "hard to guess string"
+APP.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "i guess it's not set!")
 APP.config["UPLOAD_FOLDER"] = "data/"
 APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
 APP.config["JOB_DIR"] = "jobs/"

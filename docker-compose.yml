@@ -19,6 +19,8 @@ services:
     volumes:
       - seacr-data:/jobs
     restart: always
+    environment:
+      - SEACR_APP_SECRET
 
   celery:
     image: fredhutch/seacr # ??

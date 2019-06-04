@@ -1,0 +1,32 @@
+general:
+  branches:
+    only:
+      - master
+
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker build -t $DOCKER_HUB_HOST/$DOCKER_USER/seacr:$CIRCLE_SHA1 .
+    - curl -LO https://releases.rancher.com/cli/v0.6.2/rancher-linux-amd64-v0.6.2.tar.gz
+    - tar zxf rancher-linux-amd64-v0.6.2.tar.gz
+    - curl -L https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` -o ./docker-compose
+    - chmod +x ./docker-compose
+
+test:
+  override:
+    - ./docker-compose up -d
+    # TODO make sure we get a 2xx result code
+    - sleep 60 && curl --retry 10 --retry-delay 5 -v  http://${BUILD_HOST}:8001 
+    - ./docker-compose down
+
+
+deployment:
+  master:
+    branch: master
+    commands:
+      - docker tag $DOCKER_HUB_HOST/$DOCKER_USER/seacr:$CIRCLE_SHA1 $DOCKER_HUB_HOST/$DOCKER_USER/seacr:latest
+      - docker login -e fredhutch@fhcrc.org -u $DOCKER_USER -p "$DOCKER_PASS" $DOCKER_HUB_HOST && docker push $DOCKER_HUB_HOST/$DOCKER_USER/seacr:latest
+      - rancher-v0.6.2/rancher --url https://ponderosa.fhcrc.org --access-key $RANCHERAPI_ACCESSKEY --secret-key $RANCHERAPI_SECRETKEY up -d --pull --force-upgrade --confirm-upgrade --stack seacr --file docker-compose.yml --rancher-file rancher-compose.yml
