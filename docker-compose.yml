@@ -1,4 +1,4 @@
-version: '2'
+version: '3.3'
 services:
 
   rabbitmq:
@@ -20,7 +20,7 @@ services:
       - seacr-data:/jobs
     restart: always
     secrets:
-      - SEACR_APP_SECRET
+    - SEACR_APP_SECRET
     environment:
       - SEACR_APP_SECRET
 
@@ -43,11 +43,12 @@ services:
     volumes:
       - seacr-data:/jobs
     restart: always
-    
-volumes:
-  seacr-data:
-    external: true
 
 secrets:
   SEACR_APP_SECRET:
     external: true
+
+volumes:
+  seacr-data:
+    external: true
+
