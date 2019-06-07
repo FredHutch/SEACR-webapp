@@ -17,13 +17,14 @@ dependencies:
 
 test:
   override:
-    - echo i am evil because i have no tests yet. 
-    # - docker volume create --name=seacr-data
-    # - ./docker-compose up -d
-    # # TODO make sure we get a 2xx result code
-    # - sleep 60 && curl --retry 10 --retry-delay 5 -v  http://${BUILD_HOST}:8001 
-    # - ./docker-compose down
-    # - docker volume rm -f seacr-data
+    # - echo i am evil because i have no tests yet. 
+    - echo $SEACR_APP_SECRET | docker secret create SEACR_APP_SECRET -
+    - docker volume create --name=seacr-data
+    - ./docker-compose up -d
+    # TODO make sure we get a 2xx result code
+    - sleep 60 && curl --retry 10 --retry-delay 5 -v  http://${BUILD_HOST}:8001 
+    - ./docker-compose down
+    - docker volume rm -f seacr-data
 
 
 deployment:
