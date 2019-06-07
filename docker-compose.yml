@@ -1,7 +1,12 @@
-version: '2'
+version: '3.3'
+networks:
+  my-network:
+    driver: bridge
 services:
 
   rabbitmq:
+    networks:
+      - my-network
     image: rabbitmq:3
     stdin_open: true
     ports:
@@ -10,6 +15,8 @@ services:
       io.rancher.container.pull_image: always
 
   webapp:
+    networks:
+      - my-network
     image: fredhutch/seacr # change to something in private registry?
     stdin_open: true
     ports:
@@ -25,6 +32,8 @@ services:
       - SEACR_APP_SECRET
 
   celery:
+    networks:
+      - my-network
     image: fredhutch/seacr # ??
     stdin_open: true
     command: ./run-celery.sh
@@ -35,6 +44,8 @@ services:
     restart: always
 
   cron-cleaner:
+    networks:
+      - my-network
     image: fredhutch/seacr
     stdin_open: true
     command: "cron && tail -f /var/log/cron.log"
