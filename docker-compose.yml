@@ -1,7 +1,11 @@
 version: '3.3'
 networks:
   my-network:
-    driver: bridge
+    ipam:
+      driver: bridge
+      config:
+         - subnet: 10.99.98.0/24
+
 services:
 
   rabbitmq:
