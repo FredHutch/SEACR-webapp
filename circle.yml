@@ -33,3 +33,4 @@ deployment:
       - docker tag $DOCKER_ORG/seacr:$CIRCLE_SHA1 $DOCKER_ORG/seacr:latest
       - docker login -e fredhutch@fhcrc.org -u $DOCKER_USER -p "$DOCKER_PASS" && docker push $DOCKER_ORG/seacr:latest
       - rancher-v0.6.7.1/rancher --url https://ponderosa.fhcrc.org --access-key $RANCHERAPI_ACCESSKEY --secret-key $RANCHERAPI_SECRETKEY up -d --pull --force-upgrade --confirm-upgrade --stack seacr --file docker-compose.yml --rancher-file rancher-compose.yml
+      - sleep 60
