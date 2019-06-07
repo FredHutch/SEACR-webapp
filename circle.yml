@@ -18,7 +18,7 @@ dependencies:
 test:
   override:
     # - echo i am evil because i have no tests yet. 
-    - echo $SEACR_APP_SECRET | docker secret create SEACR_APP_SECRET -
+    # - echo $SEACR_APP_SECRET | docker secret create SEACR_APP_SECRET -
     - docker volume create --name=seacr-data
     - ./docker-compose up -d
     # TODO make sure we get a 2xx result code
