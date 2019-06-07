@@ -7,6 +7,7 @@ Application.
 
 import datetime
 import json
+import logging
 import os
 import shutil
 
@@ -35,6 +36,8 @@ def create_app():
 
 
 APP = create_app()
+
+logging.basicConfig(level=logging.INFO)
 
 # FIXME/TODO move secret_key into env var
 APP.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "i guess it's not set!")
@@ -139,6 +142,8 @@ def kick_off_job():
     job_dir = os.path.abspath(job_dir)
     os.mkdir(job_dir)
 
+    print("current directory is {}".format(os.getcwd()))
+    logging.info("current directory is %s", os.getcwd())
     # move file(s) to jobs directory:
     shutil.move(
         "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"]),

@@ -107,6 +107,7 @@ def run_seacr(
     channel = connection.channel()
     channel.queue_declare(queue=self.request.id)
     # 'with os.chdir(...)' is not working for some reason, so just omit the `with`.
+    # TODO context mgr needs to be implemented a la https://stackoverflow.com/a/13197763/470769
     os.chdir(job_dir)
     args = [file1]
     if threshold:
