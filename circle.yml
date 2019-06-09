@@ -9,6 +9,7 @@ machine:
 
 dependencies:
   override:
+    - git clone https://github.com/FredHutch/SEACR.git
     - docker build -t $DOCKER_ORG/seacr:$CIRCLE_SHA1 .
     - curl -LO https://releases.rancher.com/cli/v0.6.7.1/rancher-linux-amd64-v0.6.7.1.tar.gz
     - tar zxf rancher-linux-amd64-v0.6.7.1.tar.gz
