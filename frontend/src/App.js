@@ -1,11 +1,21 @@
 import React from 'react';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form'
+import FormGroup from 'react-bootstrap/FormGroup'
 // import ReactDOM from 'react-dom';
 
-// function App0(props) {
-//   return <h1>Hello, {props.subreddit}</h1>;
-// }
+function App(props) {
+  return (
+    <Form>
+      <FormGroup controlId="formBasicEmail">
+        <Form.Label>Email address</Form.Label>
+        <Form.Control type="file" placeholder="Enter email" />
+      </FormGroup>
+    </Form>
+  );
+}
 
-class App extends React.Component {
+class App0 extends React.Component {
   state = {
     posts: []
   }
@@ -13,10 +23,10 @@ class App extends React.Component {
   componentDidMount() {
     const that = this;
     fetch(`https://www.reddit.com/r/${this.props.subreddit}.json`)
-    // fetch(`http://localhost:5000/test`)
+      // fetch(`http://localhost:5000/test`)
       .then(res => {
         return res.json();
-      }).then(function(myJson) {
+      }).then(function (myJson) {
         console.log("in 2nd then");
         // console.log(JSON.stringify(myJson.data.children));
         const posts = myJson.data.children.map(obj => obj.data);
