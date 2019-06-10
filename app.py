@@ -12,7 +12,7 @@ import os
 import shutil
 
 
-from flask import Flask, redirect, render_template, request, send_file, url_for
+from flask import Flask, redirect, render_template, request, send_file, url_for, Response
 from flask_bootstrap import Bootstrap
 
 import pika
@@ -87,6 +87,12 @@ def gen_file_name(filename):
 
     return filename
 
+@APP.route("/test", methods=['GET'])
+def testroute():
+    "test route"
+    resp = Response(json.dumps({"status": "ok"}))
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
 
 @APP.route("/get_job_status", methods=["GET"])
 def get_job_status():
