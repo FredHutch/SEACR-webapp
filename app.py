@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import shutil
+import time
 
 
 from flask import Flask, redirect, render_template, request, send_file, url_for
@@ -138,13 +139,26 @@ def kick_off_job():
     print(jsons.__class__)
 
     # create a job directory:
-    job_dir = "{}{}".format(util.get_job_directory(), jsons["timestamp"])
+    job_dir = os.path.join(util.get_job_directory(), jsons["timestamp"])
     job_dir = os.path.abspath(job_dir)
     os.mkdir(job_dir)
 
     print("current directory is {}".format(os.getcwd()))
     logging.info("current directory is %s", os.getcwd())
     # move file(s) to jobs directory:
+
+    count = 0
+    max_retries = 5
+    while not os.path.exists(
+        "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"])
+    ):
+        logging.info("file1 does not exist")
+        if count == max_retries:
+            return json.dumps(dict(error="uploaded file can't be found")), 500
+        time.sleep(2)
+        count += 1
+        # TODO exit with error after max retries
+
     shutil.move(
         "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"]),
         "{}/{}".format(job_dir, jsons["file1"]),
@@ -266,7 +280,8 @@ def send_file_to_user(filenum, prefix, job_dir):
     for char in ["/", ".", "\\"]:
         if char in prefix:
             return simplejson.dumps({"error": "invalid values"})
-    full_job_dir = util.get_job_directory() + job_dir
+    full_job_dir = os.path.join(util.get_job_directory(), job_dir)
+    logging.info("full_job_dir is %s", full_job_dir)
     result_files = [x for x in os.listdir(full_job_dir) if x.startswith(prefix)]
     result_file = os.path.join(full_job_dir, result_files[int(filenum)])
     return send_file(result_file, as_attachment=True)
