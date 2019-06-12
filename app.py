@@ -10,7 +10,6 @@ import json
 import logging
 import os
 import shutil
-import time
 
 
 from flask import Flask, redirect, render_template, request, send_file, url_for
@@ -199,6 +198,10 @@ def kick_off_job():
 @APP.route("/upload/<timestamp>", methods=["GET", "POST"])
 def upload(timestamp):
     "file upload route"
+    try:
+        int(timestamp)
+    except ValueError:
+        return simplejson.dumps({"error": "invalid timestamp"})
     if request.method == "POST":
         APP.config["UPLOAD_FOLDER"] = os.path.join(util.get_base_upload_directory(), timestamp)
         os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
