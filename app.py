@@ -120,7 +120,13 @@ def get_job_status():
     res = run_seacr.AsyncResult(task_id=job_id)
     #    print(f'State={result.state}, info={result.info}')
 
-    retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+    try:
+        retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+    except ConnectionResetError:
+        # TODO, recreate connection
+        logging.info("Caught ConnectionResetError")
+        retval = {"state": "transient_error", "info": None, "log_obj": None}
+
     print("returning:")
     print(retval)
     return json.dumps(retval)
