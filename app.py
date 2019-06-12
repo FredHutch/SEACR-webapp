@@ -40,11 +40,11 @@ APP = create_app()
 
 logging.basicConfig(level=logging.INFO)
 
-# FIXME/TODO move secret_key into env var
 APP.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "i guess it's not set!")
-APP.config["UPLOAD_FOLDER"] = "data/"
+APP.config["UPLOAD_FOLDER"] = util.get_base_upload_directory()
 APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
 APP.config["JOB_DIR"] = "jobs/"
+# TODO find out reasonable content length
 # APP.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(
@@ -144,6 +144,12 @@ def kick_off_job():
     print(jsons)
     print(jsons.__class__)
 
+    # set up upload dir
+    APP.config["UPLOAD_FOLDER"] = os.path.join(
+        util.get_base_upload_directory(), jsons["timestamp"]
+    )
+    os.makedirs(APP.config['UPLOAD_FOLDER'], exist_ok=True)
+
     # create a job directory:
     job_dir = os.path.join(util.get_job_directory(), jsons["timestamp"])
     job_dir = os.path.abspath(job_dir)
@@ -153,27 +159,15 @@ def kick_off_job():
     logging.info("current directory is %s", os.getcwd())
     # move file(s) to jobs directory:
 
-    count = 0
-    max_retries = 5
-    while not os.path.exists(
-        "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"])
-    ):
-        logging.info("file1 does not exist")
-        if count == max_retries:
-            return json.dumps(dict(error="uploaded file can't be found")), 500
-        time.sleep(2)
-        count += 1
-        # TODO exit with error after max retries
-
     shutil.move(
-        "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file1"]),
-        "{}/{}".format(job_dir, jsons["file1"]),
+        os.path.join(APP.config["UPLOAD_FOLDER"], jsons['file1']),
+        os.path.join(job_dir, jsons['file1'])
     )
 
     if jsons["file2"] is not None and jsons["file2"] != "":
         shutil.move(
-            "{}{}".format(APP.config["UPLOAD_FOLDER"], jsons["file2"]),
-            "{}/{}".format(job_dir, jsons["file2"]),
+            os.path.join(APP.config["UPLOAD_FOLDER"], jsons['file2']),
+            os.path.join(job_dir, jsons['file2'])
         )
 
     # NOTE: hardcoding SEACR version here
@@ -202,10 +196,13 @@ def kick_off_job():
     return json.dumps(dict(taskId=task.task_id))
 
 
-@APP.route("/upload", methods=["GET", "POST"])
-def upload():
+@APP.route("/upload/<timestamp>", methods=["GET", "POST"])
+def upload(timestamp):
     "file upload route"
     if request.method == "POST":
+        APP.config["UPLOAD_FOLDER"] = os.path.join(util.get_base_upload_directory(), timestamp)
+        os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
+
         key = list(request.files.keys())[0]  # TODO ensure keys() is not empty
         files = request.files[key]
 
