@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import shutil
+import time
 
 
 from flask import Flask, redirect, render_template, request, send_file, url_for
@@ -116,10 +117,19 @@ def get_job_status():
     # then check stask status
     # put them together & return them
 
-    res = run_seacr.AsyncResult(task_id=job_id)
-    #    print(f'State={result.state}, info={result.info}')
-
-    retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+    max_retries = 5
+    count = 0
+    while True:
+        try:
+            res = run_seacr.AsyncResult(task_id=job_id)
+            retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+            break
+        except (OSError, ConnectionResetError):
+            logging.info("Getting task status failed, attempt %s", count)
+            count += 1
+            if count == max_retries:
+                return json.dumps({"error": "could not get task status"})
+            time.sleep(0.2)
 
     print("returning:")
     print(retval)
@@ -142,7 +152,7 @@ def kick_off_job():
     APP.config["UPLOAD_FOLDER"] = os.path.join(
         util.get_base_upload_directory(), jsons["timestamp"]
     )
-    os.makedirs(APP.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
 
     # create a job directory:
     job_dir = os.path.join(util.get_job_directory(), jsons["timestamp"])
@@ -153,15 +163,24 @@ def kick_off_job():
     logging.info("current directory is %s", os.getcwd())
     # move file(s) to jobs directory:
 
+    srcfile = os.path.join(APP.config["UPLOAD_FOLDER"], jsons["file1"])
+    destdir = job_dir
+    assert os.path.isfile(srcfile)
+    assert os.path.isdir(destdir)
+
     shutil.move(
-        os.path.join(APP.config["UPLOAD_FOLDER"], jsons['file1']),
-        os.path.join(job_dir, jsons['file1'])
+        os.path.join(APP.config["UPLOAD_FOLDER"], jsons["file1"]),
+        os.path.join(job_dir, jsons["file1"]),
     )
 
     if jsons["file2"] is not None and jsons["file2"] != "":
+
+        srcfile = os.path.join(APP.config["UPLOAD_FOLDER"], jsons["file2"])
+        assert os.path.isfile(srcfile)
+
         shutil.move(
-            os.path.join(APP.config["UPLOAD_FOLDER"], jsons['file2']),
-            os.path.join(job_dir, jsons['file2'])
+            os.path.join(APP.config["UPLOAD_FOLDER"], jsons["file2"]),
+            os.path.join(job_dir, jsons["file2"]),
         )
 
     # NOTE: hardcoding SEACR version here
@@ -198,7 +217,9 @@ def upload(timestamp):
     except ValueError:
         return simplejson.dumps({"error": "invalid timestamp"})
     if request.method == "POST":
-        APP.config["UPLOAD_FOLDER"] = os.path.join(util.get_base_upload_directory(), timestamp)
+        APP.config["UPLOAD_FOLDER"] = os.path.join(
+            util.get_base_upload_directory(), timestamp
+        )
         os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
 
         key = list(request.files.keys())[0]  # TODO ensure keys() is not empty
