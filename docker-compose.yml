@@ -21,7 +21,7 @@ services:
     labels:
       io.rancher.container.pull_image: always
     volumes:
-      - seacr-data:/jobs
+      - seacr-data:/seacr-data
     restart: always
     secrets:
     - SEACR_APP_SECRET
@@ -35,7 +35,7 @@ services:
     labels:
       io.rancher.container.pull_image: always
     volumes:
-      - seacr-data:/jobs
+      - seacr-data:/seacr-data
     restart: always
 
   cron-cleaner:
@@ -45,7 +45,7 @@ services:
     labels:
       io.rancher.container.pull_image: always
     volumes:
-      - seacr-data:/jobs
+      - seacr-data:/seacr-data
     restart: always
 
 secrets:

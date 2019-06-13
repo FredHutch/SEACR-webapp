@@ -14,7 +14,6 @@
 var filesUploadedSuccessfully = 0;
 var expectedNumberOfUploads = 0;
 var uploadedFiles = [];
-var jobTimestamp = null;
 var taskId = null;
 
 function pad(num, size) {
@@ -48,6 +47,8 @@ getTimestamp = function () {
     out += pad(now.getMilliseconds(), 4);
     return out;
 }
+
+var jobTimestamp = getTimestamp();
 
 isEmpty = function (thing) {
     // TODO unhardcode these everywhere:
@@ -128,7 +129,7 @@ getFileName = function (file1or2) {
 
 kickOffJob = function () {
     $("#console-hideme").show();
-    jobTimestamp = getTimestamp();
+    // jobTimestamp = getTimestamp();
     $.ajax({
         contentType: "application/json;charset=UTF-8",
         dataType: "json",
@@ -238,7 +239,7 @@ $(function () {
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
-        url: '/upload',
+        url: '/upload/' + jobTimestamp,
         autoUpload: false, // Does not seem necessary?
         dropZone: null,
         submit: function (e, data) {

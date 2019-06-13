@@ -66,15 +66,12 @@ def seacr_wrapper(*args, **kwargs):
         del kwargs["seacr_command"]
         result = seacr(*args, **kwargs)
         LOGGER.info("success!")
-        time.sleep(2)
         return (result.exit_code, "success")
     except sh.ErrorReturnCode as shex:
         # TODO log some stuff here
         # TODO maybe return exception message instead of exit code,
         # or a tuple of both?
         LOGGER.info("shell exception is %s", shex)
-        # but it does!
-        time.sleep(2)
         return (shex.exit_code, str(shex))  # pylint: disable=no-member
     except:  # pylint: disable=bare-except
         exc = sys.exc_info()[0]
@@ -82,7 +79,6 @@ def seacr_wrapper(*args, **kwargs):
         # TODO log some stuff here
         # TODO maybe return exception message instead of exit code,
         # or a tuple of both?
-        time.sleep(2)
         return (-666, str(exc))
 
 

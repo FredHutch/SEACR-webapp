@@ -3,7 +3,12 @@
 
 {% block page_content %}
 <div class="container">
-    <h1>SEACR</h1>
+    <h1>SEACR: SEACR: Sparse Enrichment Analysis for CUT&amp;RUN</h1>
+
+    <!-- <p>
+        This web site is based on the 
+        SEACR method described []
+    </p> -->
     <br>
     {# The file upload form used as target for the file upload widget #}
     <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
@@ -21,11 +26,13 @@
                                 Browse&hellip; <input type="file" assoc="file1" style="display: none;">
                             </span>
                         </label>
-                        <input type="text" id="file1" class="form-control jork file1-class" placeholder="target data bedgraph file">
+                        <input type="text" id="file1" class="form-control jork file1-class"
+                            placeholder="target data bedgraph file">
                     </div>
                     <span class="help-block">
                         Target data bedgraph file in UCSC <a target="_blank"
-                            href="https://genome.ucsc.edu/goldenpath/help/bedgraph.html">bedgraph</a> format
+                            href="https://genome.ucsc.edu/goldenpath/help/bedgraph.html">bedgraph</a> format that omits
+                        regions containing 0 signal.
                     </span>
                 </div>
             </div>
@@ -46,7 +53,7 @@
                             placeholder="Control (IgG) data bedgraph file">
                     </div>
                     <span class="help-block">
-                        To generate an empirical threshold for peak calling
+                        Control (IgG) data bedgraph file to generate an empirical threshold for peak calling.
                     </span>
                 </div>
                 <div class="col-sm-1">or</div>
@@ -54,6 +61,12 @@
                     {# <label for="usr">Numeric threshold <i>n</i>:</label> #}
                     <input type="text" class="form-control" id="threshold"
                         placeholder="numeric threshold between 0 and 1">
+                    <span class="help-block">
+                        A numeric threshold
+                        <i>n</i> between 0 and 1 returns the top <i>n</i> fraction of peaks based on total signal within
+                        peaks.
+                    </span>
+
                 </div>
 
             </div>
@@ -62,18 +75,28 @@
                     <div class="radio">
                         <label><input type="radio" name="normnon" value="norm" checked>norm</label>
                     </div>
-                    <div class="radio">
+                    <div class="radio"
+                        title='"norm" denotes normalization of control to target data, "non" skips this behavior. "norm" is recommended unless experimental and control data are already rigorously normalized to each other (e.g. via spike-in).'>
                         <label><input type="radio" name="normnon" value="non">non</label>
                     </div>
+                    <span class="help-block">“norm” denotes normalization of control to target data, “non” skips this
+                        behavior. "norm" is recommended unless
+                        experimental and control data are already rigorously normalized to each other (e.g. via
+                        spike-in).</span>
                 </div>
                 <div class="col-sm-1">&nbsp;</div>
                 <div class="col-sm-5">
                     <div class="radio">
                         <label><input type="radio" name="unionauc" value="union" checked>union</label>
                     </div>
-                    <div class="radio">
+                    <div class="radio"
+                        title='“union” forces implementation of a maximum signal threshold in addition to the total signal threshold, and corresponds to the “union” mode described in the text, whereas “AUC” avoids this behavior, and corresponds to “AUC only” mode.'>
                         <label><input type="radio" name="unionauc" value="AUC">AUC</label>
                     </div>
+                    <span class="help-block">“union” forces implementation of a maximum signal threshold in addition to
+                        the total signal threshold, and corresponds
+                        to the “union” mode described in the text, whereas “AUC” avoids this behavior, and corresponds
+                        to “AUC only” mode.</span>
 
                 </div>
 
@@ -82,14 +105,20 @@
                 <div class="col-lg-6 col-sm-6 col-12">
                     <input type="text" class="form-control" id="outputprefix" placeholder="output prefix">
                 </div>
-                <div class="col-sm-1">&nbsp;</div>
-                <div class="col-sm-5">
-                    {#  For some reason, the submit button here
-                    does not work. It actually submits the form
-                    and changes the current page. #}
-                    {# <button type="button" id="submitbutton" class="btn btn-primary">Submit</button> #}
-                </div>
 
+            </div>
+            <span class="help-block">Generated output file(s) will begin with the prefix you specify.</span>
+            <div class="container" style="margin-top: 20px;">
+                <div class="row">
+
+                    <div class="col-sm-1">&nbsp;&nbsp;</div>
+                    <div class="col-sm-5">
+                        {#  For some reason, the submit button here
+                                    does not work. It actually submits the form
+                                    and changes the current page. #}
+                        {# <button type="button" id="submitbutton" class="btn btn-primary">Submit</button> #}
+                    </div>
+                </div>
             </div>
 
 
@@ -197,8 +226,8 @@
     <div id="results-container" class="row" style="display: none;">
         <h2>Results:</h2>
         <div id="results"></div>
-        <br/>
-            <a class="btn btn-primary" href="/">Run Again</a>
+        <br />
+        <a class="btn btn-primary" href="/">Run Again</a>
     </div>
     <div id="scroll_to_me"></div>
 

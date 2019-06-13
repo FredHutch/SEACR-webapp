@@ -1,6 +1,13 @@
 
 # dev setup
 
+Start app:
+
+```
+pipenv shell --fancy
+python app.py
+```
+
 Start rabbitmq like this:
 
 ```

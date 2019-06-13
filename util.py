@@ -26,5 +26,15 @@ def get_rabbit_host():
 def get_job_directory():
     "get job directory"
     if on_docker():
-        return "/jobs/"
+        dir0 = "/seacr-data/jobs/"
+        os.makedirs(dir0, exist_ok=True)
+        return dir0
     return os.path.abspath("jobs/")
+
+def get_base_upload_directory():
+    "get base upload directory"
+    if on_docker():
+        dir0 = "/seacr-data/uploads/"
+        os.makedirs(dir0, exist_ok=True)
+        return dir0
+    return os.path.abspath("data/")
