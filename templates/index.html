@@ -31,7 +31,8 @@
                     </div>
                     <span class="help-block">
                         Target data bedgraph file in UCSC <a target="_blank"
-                            href="https://genome.ucsc.edu/goldenpath/help/bedgraph.html">bedgraph</a> format
+                            href="https://genome.ucsc.edu/goldenpath/help/bedgraph.html">bedgraph</a> format that omits
+                        regions containing 0 signal.
                     </span>
                 </div>
             </div>
@@ -52,7 +53,7 @@
                             placeholder="Control (IgG) data bedgraph file">
                     </div>
                     <span class="help-block">
-                        To generate an empirical threshold for peak calling
+                        Control (IgG) data bedgraph file to generate an empirical threshold for peak calling.
                     </span>
                 </div>
                 <div class="col-sm-1">or</div>
@@ -60,24 +61,34 @@
                     {# <label for="usr">Numeric threshold <i>n</i>:</label> #}
                     <input type="text" class="form-control" id="threshold"
                         placeholder="numeric threshold between 0 and 1">
+                    <span class="help-block">
+                        A numeric threshold
+                        <i>n</i> between 0 and 1 returns the top <i>n</i> fraction of peaks based on total signal within
+                        peaks.
+                    </span>
+
                 </div>
 
             </div>
             <div class="row">
                 <div class="col-lg-6 col-sm-6 col-12">
-                    <div class="radio">
+                    <div class="radio"
+                        title='"norm" denotes normalization of control to target data, "non" skips this behavior. "norm" is recommended unless experimental and control data are already rigorously normalized to each other (e.g. via spike-in).'>
                         <label><input type="radio" name="normnon" value="norm" checked>norm</label>
                     </div>
-                    <div class="radio">
+                    <div class="radio"
+                        title='"norm" denotes normalization of control to target data, "non" skips this behavior. "norm" is recommended unless experimental and control data are already rigorously normalized to each other (e.g. via spike-in).'>
                         <label><input type="radio" name="normnon" value="non">non</label>
                     </div>
                 </div>
                 <div class="col-sm-1">&nbsp;</div>
                 <div class="col-sm-5">
-                    <div class="radio">
+                    <div class="radio"
+                        title='“union” forces implementation of a maximum signal threshold in addition to the total signal threshold, and corresponds to the “union” mode described in the text, whereas “AUC” avoids this behavior, and corresponds to “AUC only” mode.'>
                         <label><input type="radio" name="unionauc" value="union" checked>union</label>
                     </div>
-                    <div class="radio">
+                    <div class="radio"
+                        title='“union” forces implementation of a maximum signal threshold in addition to the total signal threshold, and corresponds to the “union” mode described in the text, whereas “AUC” avoids this behavior, and corresponds to “AUC only” mode.'>
                         <label><input type="radio" name="unionauc" value="AUC">AUC</label>
                     </div>
 
@@ -85,7 +96,8 @@
 
             </div>
             <div class="row">
-                <div class="col-lg-6 col-sm-6 col-12">
+                <div class="col-lg-6 col-sm-6 col-12"
+                    title="Generated output files will begin with the prefix you specify.">
                     <input type="text" class="form-control" id="outputprefix" placeholder="output prefix">
                 </div>
 

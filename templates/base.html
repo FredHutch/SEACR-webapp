@@ -19,10 +19,24 @@
 {% endblock %}
 
 {% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                {# change this to URL of paper when published: #}
+                <li><a target="_blank" href="https://github.com/FredHutch/SEACR/">Method</a></li>
+            </ul>
+            <ul class="nav navbar-nav">
+                <li><a target="_blank" href="https://github.com/FredHutch/SEACR/issues/new"
+                        title="Report issue with this website (requires GitHub account)">Report Issue</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
-    {% block page_content %}{% endblock %}
+{% block page_content %}{% endblock %}
 {% endblock %}
 
 {% block scripts %}
