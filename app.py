@@ -165,6 +165,10 @@ def kick_off_job():
 
     srcfile = os.path.join(APP.config["UPLOAD_FOLDER"], jsons["file1"])
     destdir = job_dir
+
+    if not os.path.isfile(srcfile):
+        logging.info("file1 does not exist!, sleeping")
+        time.sleep(10)
     assert os.path.isfile(srcfile)
     assert os.path.isdir(destdir)
 
@@ -176,6 +180,9 @@ def kick_off_job():
     if jsons["file2"] is not None and jsons["file2"] != "":
 
         srcfile = os.path.join(APP.config["UPLOAD_FOLDER"], jsons["file2"])
+        if not os.path.isfile(srcfile):
+            logging.info("file2 does not exist! sleeping")
+            time.sleep(10)
         assert os.path.isfile(srcfile)
 
         shutil.move(
@@ -216,11 +223,12 @@ def upload(timestamp):
         int(timestamp)
     except ValueError:
         return simplejson.dumps({"error": "invalid timestamp"})
+    APP.config["UPLOAD_FOLDER"] = os.path.join(
+        util.get_base_upload_directory(), timestamp
+    )
+    os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
+
     if request.method == "POST":
-        APP.config["UPLOAD_FOLDER"] = os.path.join(
-            util.get_base_upload_directory(), timestamp
-        )
-        os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
 
         key = list(request.files.keys())[0]  # TODO ensure keys() is not empty
         files = request.files[key]
