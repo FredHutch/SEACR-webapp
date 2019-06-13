@@ -3,7 +3,12 @@
 
 {% block page_content %}
 <div class="container">
-    <h1>SEACR</h1>
+    <h1>SEACR: SEACR: Sparse Enrichment Analysis for CUT&amp;RUN</h1>
+
+    <!-- <p>
+        This web site is based on the 
+        SEACR method described []
+    </p> -->
     <br>
     {# The file upload form used as target for the file upload widget #}
     <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
@@ -21,7 +26,8 @@
                                 Browse&hellip; <input type="file" assoc="file1" style="display: none;">
                             </span>
                         </label>
-                        <input type="text" id="file1" class="form-control jork file1-class" placeholder="target data bedgraph file">
+                        <input type="text" id="file1" class="form-control jork file1-class"
+                            placeholder="target data bedgraph file">
                     </div>
                     <span class="help-block">
                         Target data bedgraph file in UCSC <a target="_blank"
@@ -82,14 +88,19 @@
                 <div class="col-lg-6 col-sm-6 col-12">
                     <input type="text" class="form-control" id="outputprefix" placeholder="output prefix">
                 </div>
-                <div class="col-sm-1">&nbsp;</div>
-                <div class="col-sm-5">
-                    {#  For some reason, the submit button here
-                    does not work. It actually submits the form
-                    and changes the current page. #}
-                    {# <button type="button" id="submitbutton" class="btn btn-primary">Submit</button> #}
-                </div>
 
+            </div>
+            <div class="container" style="margin-top: 20px;">
+                <div class="row">
+
+                    <div class="col-sm-1">&nbsp;&nbsp;</div>
+                    <div class="col-sm-5">
+                        {#  For some reason, the submit button here
+                                    does not work. It actually submits the form
+                                    and changes the current page. #}
+                        {# <button type="button" id="submitbutton" class="btn btn-primary">Submit</button> #}
+                    </div>
+                </div>
             </div>
 
 
@@ -197,8 +208,8 @@
     <div id="results-container" class="row" style="display: none;">
         <h2>Results:</h2>
         <div id="results"></div>
-        <br/>
-            <a class="btn btn-primary" href="/">Run Again</a>
+        <br />
+        <a class="btn btn-primary" href="/">Run Again</a>
     </div>
     <div id="scroll_to_me"></div>
 
