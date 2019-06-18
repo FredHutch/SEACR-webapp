@@ -44,28 +44,15 @@ APP.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "i guess it's not set!")
 APP.config["UPLOAD_FOLDER"] = util.get_base_upload_directory()
 APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
 APP.config["JOB_DIR"] = "jobs/"
-# TODO find out reasonable content length
-# APP.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
+APP.config["MAX_CONTENT_LENGTH"] = 600 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(
-    # TODO remove everything but "bed" and "bedgraph" from this set:
     [
         "bed",
         "bedgraph",
-        "txt",
-        "gif",
-        "png",
-        "jpg",
-        "jpeg",
-        "bmp",
-        "rar",
-        "zip",
-        "7zip",
-        "doc",
-        "docx",
     ]
 )
-IGNORED_FILES = set([".gitignore"])
+IGNORED_FILES = set([".gitignore", ".placeholder"])
 
 # bootstrap = Bootstrap(APP)
 
