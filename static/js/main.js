@@ -15,6 +15,7 @@ var filesUploadedSuccessfully = 0;
 var expectedNumberOfUploads = 0;
 var uploadedFiles = [];
 var taskId = null;
+var failedAlready = false;
 
 function pad(num, size) {
     var s = num + "";
@@ -302,7 +303,23 @@ $(function () {
             }
         },
         send: function (e, data) { },
-        fail: function (e, data) { },
+        fail: function (e, data) { 
+            if (data['jqXHR']['status'] == 413) {
+                // console.log("status is");
+                // console.log(data['jqXHR']['status']);//['jqXHR']['status']);
+                // console.log("in fail, e and data are");
+                // console.log(e);
+                // console.log(data);
+                if (failedAlready) {
+                    console.log("We already failed once, bailing.");
+                    return
+                }
+                failedAlready = true;
+                $("#upload_too_large_modal").modal();
+
+            }
+
+        },
         always: function (e, data) { },
         progress: function (e, data) {
             var assoc = $(data['fileInput'][0]).attr('assoc');
