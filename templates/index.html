@@ -3,7 +3,7 @@
 
 {% block page_content %}
 <div class="container">
-    <h1>SEACR: SEACR: Sparse Enrichment Analysis for CUT&amp;RUN</h1>
+    <h1>SEACR: Sparse Enrichment Analysis for CUT&amp;RUN</h1>
 
     <!-- <p>
         This web site is based on the 
@@ -87,16 +87,16 @@
                 <div class="col-sm-1">&nbsp;</div>
                 <div class="col-sm-5">
                     <div class="radio">
-                        <label><input type="radio" name="unionauc" value="union" checked>union</label>
+                        <label><input type="radio" name="relaxedstringent" value="relaxed" checked>relaxed</label>
                     </div>
-                    <div class="radio"
-                        title='“union” forces implementation of a maximum signal threshold in addition to the total signal threshold, and corresponds to the “union” mode described in the text, whereas “AUC” avoids this behavior, and corresponds to “AUC only” mode.'>
-                        <label><input type="radio" name="unionauc" value="AUC">AUC</label>
+                    <div class="radio">
+                        <label><input type="radio" name="relaxedstringent" value="stringent">stringent</label>
                     </div>
-                    <span class="help-block">“union” forces implementation of a maximum signal threshold in addition to
-                        the total signal threshold, and corresponds
-                        to the “union” mode described in the text, whereas “AUC” avoids this behavior, and corresponds
-                        to “AUC only” mode.</span>
+                    <span class="help-block">“relaxed” uses a total signal threshold between the knee and peak of the
+                        total signal curve, and corresponds to the
+                        “relaxed” mode described in the text, whereas “stringent” uses the peak of the curve, and
+                        corresponds to “stringent”
+                        mode.</span>
 
                 </div>
 
@@ -223,10 +223,24 @@
         </div>
     </div>
 
+    <div id="error-container" class="row" style="display: none;">
+        <h2>Error!</h2>
+        <p>SEACR encountered an error, see console for details.</p>
+        <div>&nbsp;</div>
+        <a class="btn btn-primary" href="/">Run Again</a>
+    </div>
+
     <div id="results-container" class="row" style="display: none;">
         <h2>Results:</h2>
         <div id="results"></div>
         <br />
+        <div>
+            <span class="col-12 label label-default">Empirical false discovery rate:</span>
+            <span class="col-6 label label-info" id="empirical_fdr"></span>
+
+            <br />
+        </div>
+        <div>&nbsp;</div>
         <a class="btn btn-primary" href="/">Run Again</a>
     </div>
     <div id="scroll_to_me"></div>

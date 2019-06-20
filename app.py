@@ -178,7 +178,7 @@ def kick_off_job():
         )
 
     # NOTE: hardcoding SEACR version here
-    seacr_path = os.path.dirname(os.path.abspath(__file__)) + "/SEACR/" + "SEACR_1.0.sh"
+    seacr_path = os.path.dirname(os.path.abspath(__file__)) + "/SEACR/" + "SEACR_1.1.sh"
 
     while True:
         try:
@@ -190,7 +190,7 @@ def kick_off_job():
                 jsons["file2"],
                 jsons["threshold"],
                 jsons["normnon"],
-                jsons["unionauc"],
+                jsons["relaxedstringent"],
                 jsons["output_prefix"],
             )
             break

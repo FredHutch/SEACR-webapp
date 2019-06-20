@@ -73,6 +73,10 @@ fileSelected = function () {
 cleanup = function () {
     $("#outputprefix").val("");
     $("#threshold").val("");
+    $('[name="relaxedstringent"]').removeAttr("checked");
+    $("input[name=relaxedstringent][value='relaxed']").prop("checked", true);
+    $('[name="normnon"]').removeAttr("checked");
+    $("input[name=normnon][value='norm']").prop("checked", true);
 }
 
 validate = function () {
@@ -141,7 +145,7 @@ kickOffJob = function () {
             file2: getFileName("file2"),
             threshold: $("#threshold").val(),
             normnon: $('input[name=normnon]:checked').val(),
-            unionauc: $('input[name=unionauc]:checked').val(),
+            relaxedstringent: $('input[name=relaxedstringent]:checked').val(),
             output_prefix: $("#outputprefix").val()
         })
     }).done(function (msg) {
@@ -152,6 +156,8 @@ kickOffJob = function () {
 }
 
 function serveResultFiles(taskId, obj) {
+    console.log("in serveResultFiles, obj is");
+    console.log(obj);
     var resultFiles = obj['info'][1];
     var html = "";
     for (var i = 0; i < resultFiles.length; i++) {
@@ -168,6 +174,13 @@ function serveResultFiles(taskId, obj) {
 
 function handleTaskFailure(obj) {
     // TODO show any error messages and nonzero result code in UI
+    console.log("in handleTaskFailure, obj is");
+    console.log(obj);
+    $("#error-container").show();
+    $("#task_status").html("ERROR");
+    $("#task_status").removeClass("label-info");
+    $("#task_status").addClass("label-danger");
+    $("#scroll_to_me").get(0).scrollIntoView();
 }
 
 var seenLogMessages = {};
@@ -194,6 +207,17 @@ function updateTaskUi(obj) {
             var html = '<span style="font-family: Courier New; color: ' + color + ';">' + msg + '</span>';
             $("#console").append(html);
             $("#scroll_to_me").get(0).scrollIntoView();
+
+            var fdrIdx = obj['log_obj']['data'].indexOf("Empirical false discovery rate = ");
+            if (fdrIdx > -1) {
+                var retIdx = obj['log_obj']['data'].indexOf("\n", fdrIdx);
+                if (retIdx == -1) {
+                    retIdx = obj['log_obj']['data'].length - 1;
+                }
+                var fdr = obj['log_obj']['data'].substring(fdrIdx, retIdx);
+                fdr = fdr.split("=")[1].trim();
+                $("#empirical_fdr").html(fdr);
+            }
         } else {
             console.log("we have seen this log message before")
         }
@@ -213,7 +237,8 @@ pollJob = function (taskId) {
                 // handle log messages & console state here
                 updateTaskUi(obj);
                 if (finalStates.indexOf(obj['state']) > -1) {
-                    if (obj['state'] == 'SUCCESS') {
+                    // if (obj['state'] == 'SUCCESS') {
+                    if (obj['info'][0] == 0) {
                         serveResultFiles(taskId, obj);
                     } else {
                         handleTaskFailure(obj);

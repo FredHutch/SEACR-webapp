@@ -36,11 +36,11 @@ Specifically, run a SEACR task:
 
 ```python
 from tasks import *
-result = run_seacr.delay("/some/temp/dir", "/path/to/SEACR_1.0.sh",  "NPATBH.spike_Ec.bedgraph",
+result = run_seacr.delay("/some/temp/dir", "/path/to/SEACR_1.1.sh",  "NPATBH.spike_Ec.bedgraph",
         "IgGBH.spike_Ec.bedgraph",
         None,
         "norm",
-        "AUC",
+        "stringent",
         "SH_Hs_NPATBH.spike_Ec_IgGBH.spike_Ec")
 ```
 

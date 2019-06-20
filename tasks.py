@@ -65,8 +65,13 @@ def seacr_wrapper(*args, **kwargs):
         seacr = sh.Command(kwargs["seacr_command"])
         del kwargs["seacr_command"]
         result = seacr(*args, **kwargs)
-        LOGGER.info("success!")
-        return (result.exit_code, "success")
+        LOGGER.info("job completed with result code %s", result.exit_code)
+        if result.exit_code == 0:
+            exit_status = "success"
+        else:
+            exit_status = "error"
+
+        return (result.exit_code, exit_status)
     except sh.ErrorReturnCode as shex:
         # TODO log some stuff here
         # TODO maybe return exception message instead of exit code,
@@ -91,7 +96,7 @@ def run_seacr(
     file2,
     threshold,
     normnon,
-    unionauc,
+    relaxedstringent,
     output_prefix,
 ):
     "run seacr"
@@ -111,7 +116,7 @@ def run_seacr(
     else:
         args.append(file2)
     args.append(normnon)
-    args.append(unionauc)
+    args.append(relaxedstringent)
     args.append(output_prefix)
     # LC_ALL needs to be set to C on mac (only, I think) or `tr` will
     # complain of `illegal byte sequence` (https://unix.stackexchange.com/a/141423/64811)
@@ -178,11 +183,11 @@ if __name__ == "__main__":
     run_seacr(
         None,  # this won't work... TODO create mock object?
         "/tmp",
-        "./SEACR/SEACR_1.0.sh",
+        "./SEACR/SEACR_1.1.sh",
         "NPATBH.spike_Ec.bedgraph",
         "IgGBH.spike_Ec.bedgraph",
         None,
         "norm",
-        "AUC",
+        "stringent",
         "SH_Hs_NPATBH.spike_Ec_IgGBH.spike_Ec",
     )
