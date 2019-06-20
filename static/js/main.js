@@ -238,7 +238,7 @@ pollJob = function (taskId) {
                 updateTaskUi(obj);
                 if (finalStates.indexOf(obj['state']) > -1) {
                     // if (obj['state'] == 'SUCCESS') {
-                    if (obj['info'][0] == 0) {
+                    if (obj['info'][0][0] == 0) {
                         serveResultFiles(taskId, obj);
                     } else {
                         handleTaskFailure(obj);
