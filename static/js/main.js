@@ -238,6 +238,8 @@ pollJob = function (taskId) {
                 updateTaskUi(obj);
                 if (finalStates.indexOf(obj['state']) > -1) {
                     // if (obj['state'] == 'SUCCESS') {
+                    console.log("task ended with status ");
+                    console.log(obj);
                     if (obj['info'][0][0] == 0) {
                         serveResultFiles(taskId, obj);
                     } else {
