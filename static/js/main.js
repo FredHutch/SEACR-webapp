@@ -11,6 +11,8 @@
 
 /* global $, window */
 
+
+
 var filesUploadedSuccessfully = 0;
 var expectedNumberOfUploads = 0;
 var uploadedFiles = [];
@@ -259,152 +261,178 @@ $(function () {
 
     cleanup();
     $("#submitbutton").bind('click', function () {
-        if (fileSelected()) { } else {
-            return validate();
+        // if (fileSelected()) { } else {
+        //     return validate();
+        // }
+        var valid = validate();
+        if (valid && expectedNumberOfUploads == 0) {
+            var data = new FormData();
+            data.append('foo', 'bar'); // TODO remove
+            data.append('file1', document.getElementById('file1-chimera').files[0]);
+
+            data.append('file2', document.getElementById('file2-chimera').files[0]);
+
+            var config = {
+                onUploadProgress: function (progressEvent) {
+                    console.log("got progress event");
+                    var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                }
+            };
+
+
+            axios.put("/upload/" + jobTimestamp, data, config)
+                .then(function(res) {
+                    console.log("in first then");
+                    console.log(res);
+                })
+                .catch(function(err) {
+                    console.log("in catch");
+                    console.log(err);
+                });
         }
     });
     // Initialize the jQuery File Upload widget:
-    $('#fileupload').fileupload({
-        // Uncomment the following to send cross-domain cookies:
-        //xhrFields: {withCredentials: true},
-        url: '/upload/' + jobTimestamp,
-        autoUpload: false, // Does not seem necessary?
-        dropZone: null,
-        submit: function (e, data) {
-            var valid = validate();
-            if (valid && expectedNumberOfUploads == 0) {
-                if (!isEmpty($("#file1").attr('placeholder'))) {
-                    expectedNumberOfUploads += 1;
-                }
-                if (!isEmpty($("#file2").attr('placeholder'))) {
-                    expectedNumberOfUploads += 1;
-                }
-                $("#progress-container").show();
-                $("#fileupload").hide();
+    // $('#fileupload').fileupload({
+    //     // Uncomment the following to send cross-domain cookies:
+    //     //xhrFields: {withCredentials: true},
+    //     url: '/upload/' + jobTimestamp,
+    //     autoUpload: false, // Does not seem necessary?
+    //     dropZone: null,
+    //     submit: function (e, data) {
+    //         var valid = validate();
+    //         if (valid && expectedNumberOfUploads == 0) {
+    //             if (!isEmpty($("#file1").attr('placeholder'))) {
+    //                 expectedNumberOfUploads += 1;
+    //             }
+    //             if (!isEmpty($("#file2").attr('placeholder'))) {
+    //                 expectedNumberOfUploads += 1;
+    //             }
+    //             $("#progress-container").show();
+    //             $("#fileupload").hide();
 
-                if (expectedNumberOfUploads == 1) {
-                    $("#control-progress-container").hide();
-                    $("#global-progress-container").hide();
-                }
-            }
-            return valid;
-        },
-        // NOTE: Looks like just having 
-        // an add() function stops the submit button
-        done: function (e, data) {
-            // TODO track state of which files have been uploaded
-            if (data.result['files'][0]['name'] == ".placeholder") return
-            uploadedFiles.push(data.result['files'][0]['name']);
-            filesUploadedSuccessfully += 1;
-            if (filesUploadedSuccessfully == expectedNumberOfUploads) {
-                $("#progress-container").hide();
-                // now do stuff...
-                kickOffJob();
-            }
-        },
-        send: function (e, data) { },
-        fail: function (e, data) { 
-            if (data['jqXHR']['status'] == 413) {
-                // console.log("status is");
-                // console.log(data['jqXHR']['status']);//['jqXHR']['status']);
-                // console.log("in fail, e and data are");
-                // console.log(e);
-                // console.log(data);
-                if (failedAlready) {
-                    console.log("We already failed once, bailing.");
-                    return
-                }
-                failedAlready = true;
-                $("#upload_too_large_modal").modal();
+    //             if (expectedNumberOfUploads == 1) {
+    //                 $("#control-progress-container").hide();
+    //                 $("#global-progress-container").hide();
+    //             }
+    //         }
+    //         return valid;
+    //     },
+    //     // NOTE: Looks like just having 
+    //     // an add() function stops the submit button
+    //     done: function (e, data) {
+    //         // TODO track state of which files have been uploaded
+    //         if (data.result['files'][0]['name'] == ".placeholder") return
+    //         uploadedFiles.push(data.result['files'][0]['name']);
+    //         filesUploadedSuccessfully += 1;
+    //         if (filesUploadedSuccessfully == expectedNumberOfUploads) {
+    //             $("#progress-container").hide();
+    //             // now do stuff...
+    //             kickOffJob();
+    //         }
+    //     },
+    //     send: function (e, data) { },
+    //     fail: function (e, data) { 
+    //         if (data['jqXHR']['status'] == 413) {
+    //             // console.log("status is");
+    //             // console.log(data['jqXHR']['status']);//['jqXHR']['status']);
+    //             // console.log("in fail, e and data are");
+    //             // console.log(e);
+    //             // console.log(data);
+    //             if (failedAlready) {
+    //                 console.log("We already failed once, bailing.");
+    //                 return
+    //             }
+    //             failedAlready = true;
+    //             $("#upload_too_large_modal").modal();
 
-            }
+    //         }
 
-        },
-        always: function (e, data) { },
-        progress: function (e, data) {
-            var assoc = $(data['fileInput'][0]).attr('assoc');
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            if (assoc == "file1") {
-                $('#target-progress .progress-bar').css(
-                    'width',
-                    progress + '%'
-                );
-            } else if (assoc == "file2") {
-                $('#control-progress .progress-bar').css(
-                    'width',
-                    progress + '%'
-                );
-            }
-        },
-        progressall: function (e, data) {
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            $('#progress .progress-bar').css(
-                'width',
-                progress + '%'
-            );
-        },
-        start: function (e, data) { },
-        stop: function (e, data) { }
+    //     },
+    //     always: function (e, data) { },
+    //     progress: function (e, data) {
+    //         var assoc = $(data['fileInput'][0]).attr('assoc');
+    //         var progress = parseInt(data.loaded / data.total * 100, 10);
+    //         if (assoc == "file1") {
+    //             $('#target-progress .progress-bar').css(
+    //                 'width',
+    //                 progress + '%'
+    //             );
+    //         } else if (assoc == "file2") {
+    //             $('#control-progress .progress-bar').css(
+    //                 'width',
+    //                 progress + '%'
+    //             );
+    //         }
+    //     },
+    //     progressall: function (e, data) {
+    //         var progress = parseInt(data.loaded / data.total * 100, 10);
+    //         $('#progress .progress-bar').css(
+    //             'width',
+    //             progress + '%'
+    //         );
+    //     },
+    //     start: function (e, data) { },
+    //     stop: function (e, data) { }
 
 
 
-    });
+    // });
 
 
     // Enable iframe cross-domain access via redirect option:
-    $('#fileupload').fileupload(
-        'option',
-        'redirect',
-        window.location.href.replace(
-            /\/[^\/]*$/,
-            '/cors/result.html?%s'
-        )
-    );
+    // $('#fileupload').fileupload(
+    //     'option',
+    //     'redirect',
+    //     window.location.href.replace(
+    //         /\/[^\/]*$/,
+    //         '/cors/result.html?%s'
+    //     )
+    // );
 
-    if (window.location.hostname === 'blueimp.github.io') {
-        // Demo settings:
-        $('#fileupload').fileupload('option', {
-            url: '//jquery-file-upload.appspot.com/',
-            // Enable image resizing, except for Android and Opera,
-            // which actually support image resizing, but fail to
-            // send Blob objects via XHR requests:
-            disableImageResize: /Android(?!.*Chrome)|Opera/
-                .test(window.navigator.userAgent),
-            // TODO: reinstate a max file size when we have an idea 
-            // what it should be.
-            // maxFileSize: 5000000,
-            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bed|bedgraph)$/i
-        });
-        // Upload server status check for browsers with CORS support:
-        if ($.support.cors) {
-            $.ajax({
-                url: '//jquery-file-upload.appspot.com/',
-                type: 'HEAD'
-            }).fail(function () {
-                $('<div class="alert alert-danger"/>')
-                    .text('Upload server currently unavailable - ' +
-                        new Date())
-                    .appendTo('#fileupload');
-            });
-        }
-    } else {
-        // Load existing files:
-        $('#fileupload').addClass('fileupload-processing');
-        $.ajax({
-            // Uncomment the following to send cross-domain cookies:
-            //xhrFields: {withCredentials: true},
-            url: $('#fileupload').fileupload('option', 'url'),
-            dataType: 'json',
-            context: $('#fileupload')[0]
-        }).always(function () {
-            $(this).removeClass('fileupload-processing');
-        }).done(function (result) {
-            $(this).fileupload('option', 'done')
-                .call(this, $.Event('done'), {
-                    result: result
-                });
-        });
-    }
+    // if (window.location.hostname === 'blueimp.github.io') {
+    //     // Demo settings:
+    //     $('#fileupload').fileupload('option', {
+    //         url: '//jquery-file-upload.appspot.com/',
+    //         // Enable image resizing, except for Android and Opera,
+    //         // which actually support image resizing, but fail to
+    //         // send Blob objects via XHR requests:
+    //         disableImageResize: /Android(?!.*Chrome)|Opera/
+    //             .test(window.navigator.userAgent),
+    //         // TODO: reinstate a max file size when we have an idea 
+    //         // what it should be.
+    //         // maxFileSize: 5000000,
+    //         acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bed|bedgraph)$/i
+    //     });
+    //     // Upload server status check for browsers with CORS support:
+    //     if ($.support.cors) {
+    //         $.ajax({
+    //             url: '//jquery-file-upload.appspot.com/',
+    //             type: 'HEAD'
+    //         }).fail(function () {
+    //             $('<div class="alert alert-danger"/>')
+    //                 .text('Upload server currently unavailable - ' +
+    //                     new Date())
+    //                 .appendTo('#fileupload');
+    //         });
+    //     }
+    // } else {
+    //     // Load existing files:
+    //     $('#fileupload').addClass('fileupload-processing');
+    //     $.ajax({
+    //         // Uncomment the following to send cross-domain cookies:
+    //         //xhrFields: {withCredentials: true},
+    //         url: $('#fileupload').fileupload('option', 'url'),
+    //         dataType: 'json',
+    //         context: $('#fileupload')[0]
+    //     }).always(function () {
+    //         $(this).removeClass('fileupload-processing');
+    //     }).done(function (result) {
+    //         $(this).fileupload('option', 'done')
+    //             .call(this, $.Event('done'), {
+    //                 result: result
+    //             });
+    //     });
+    // }
 
 });
 

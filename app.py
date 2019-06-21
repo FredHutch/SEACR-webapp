@@ -203,7 +203,7 @@ def kick_off_job():
     return json.dumps(dict(taskId=task.task_id))
 
 
-@APP.route("/upload/<timestamp>", methods=["GET", "POST"])
+@APP.route("/upload/<timestamp>", methods=["GET", "POST", "PUT"])
 def upload(timestamp):
     "file upload route"
     try:
@@ -215,7 +215,7 @@ def upload(timestamp):
     )
     os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
 
-    if request.method == "POST":
+    if request.method == "POST" or request.method == "PUT":
 
         key = list(request.files.keys())[0]  # TODO ensure keys() is not empty
         files = request.files[key]
@@ -271,6 +271,33 @@ def upload(timestamp):
 
     return redirect(url_for("i"))
 
+
+@APP.route("/axi")
+def axi():
+    "axi"
+    return render_template("axi.html")
+
+@APP.route("/upload/server", methods=["PUT"])
+def axi_upload():
+    "axios upload"
+    """
+    module.exports = function (req, res) {
+  var data = '';
+
+  req.on('data', function (chunk) {
+    data += chunk;
+  });
+
+  req.on('end', function () {
+    console.log('File uploaded');
+    res.writeHead(200);
+    res.end();
+  });
+};
+    """
+    f = request.files['file']
+    f.save(secure_filename(f.filename))
+    return 'file uploaded successfully'
 
 @APP.route("/")
 def main_route():
