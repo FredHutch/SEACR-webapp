@@ -216,10 +216,6 @@ def upload(timestamp):
     os.makedirs(APP.config["UPLOAD_FOLDER"], exist_ok=True)
 
     if request.method == "POST" or request.method == "PUT":
-        print("before")
-        print(list(request.files))
-        print(list(request.files.keys()))
-        print("after")
         key = list(request.files.keys())[0]  # TODO ensure keys() is not empty
         files = request.files[key]
 
