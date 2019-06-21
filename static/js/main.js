@@ -268,17 +268,15 @@ $(function () {
         if (valid && expectedNumberOfUploads == 0) {
             var data = new FormData();
             data.append('foo', 'bar'); // TODO remove
-            var files = [];
-            files.push(document.getElementById('file1-chimera').files[0]);
-            files.push(document.getElementById('file2-chimera').files[0]);
             data.append('file1', document.getElementById('file1-chimera').files[0]);
 
-            data.append('file2', document.getElementById('file2-chimera').files[0]);
-            // data.append('files', files);
+            // TODO do a separate upload for file2
+            // data.append('file2', document.getElementById('file2-chimera').files[0]);
 
             var config = {
                 onUploadProgress: function (progressEvent) {
                     console.log("got progress event");
+                    console.log(progressEvent);
                     var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                 }
             };
