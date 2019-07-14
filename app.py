@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env py4thon3
 
 """
 Application.
@@ -44,7 +44,7 @@ APP.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "i guess it's not set!")
 APP.config["UPLOAD_FOLDER"] = util.get_base_upload_directory()
 APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
 APP.config["JOB_DIR"] = "jobs/"
-APP.config["MAX_CONTENT_LENGTH"] = 600 * 1024 * 1024
+APP.config["MAX_CONTENT_LENGTH"] = 600 * 1024 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(
     [
