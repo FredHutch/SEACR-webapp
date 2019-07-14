@@ -110,6 +110,9 @@ validate = function () {
         var numthresh = Number(threshold);
         if (numthresh < 0 || numthresh > 1) {
             errors.push("Threshold must be between 0 and 1.");
+        } else if (threshold.startsWith(".")) {
+            threshold = "0" + threshold;
+            $("#threshold").val(threshold);
         }
     }
     var outputprefix = $("#outputprefix").val();
