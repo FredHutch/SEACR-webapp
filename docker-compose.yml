@@ -1,7 +1,7 @@
 # IMPORTANT: Version needs to be '2' for deployment but 
 # seems to need to be '3.3' for local testing. TODO figure out why.
 # In the meantime do not commit this file with version '3.3'.
-version: '2'
+version: '3.3'
 
 services:
 

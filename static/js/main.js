@@ -94,6 +94,10 @@ validate = function () {
     var file1 = $("#file1").attr('placeholder');
     if (isEmpty(file1)) {
         errors.push("Select a target data bedgraph file.");
+    } else {
+        if (!file1.endsWith(".bedgraph")) {
+            errors.push("Target data file must have .bedgraph extension.");
+        }
     }
     var file2 = $("#file2").attr('placeholder');
     var threshold = $("#threshold").val();
@@ -114,6 +118,9 @@ validate = function () {
             threshold = "0" + threshold;
             $("#threshold").val(threshold);
         }
+    }
+    if ((!isEmpty(file2)) && (!file2.endsWith(".bedgraph"))) {
+        errors.push("Control (IgG) file must have .bedgraph extension.");
     }
     var outputprefix = $("#outputprefix").val();
     if (outputprefix == "") {
