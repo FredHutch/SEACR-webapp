@@ -6,10 +6,12 @@ Application.
 
 
 import datetime
+from email.message import EmailMessage
 import json
 import logging
 import os
 import shutil
+import smtplib
 import time
 
 
@@ -27,6 +29,8 @@ from lib.upload_file import uploadfile
 from tasks import run_seacr
 
 import util
+
+import requests
 
 
 def create_app():
@@ -46,12 +50,7 @@ APP.config["THUMBNAIL_FOLDER"] = "data/thumbnail/"
 APP.config["JOB_DIR"] = "jobs/"
 APP.config["MAX_CONTENT_LENGTH"] = 600 * 1024 * 1024 * 1024
 
-ALLOWED_EXTENSIONS = set(
-    [
-        "bed",
-        "bedgraph",
-    ]
-)
+ALLOWED_EXTENSIONS = set(["bed", "bedgraph"])
 IGNORED_FILES = set([".gitignore", ".placeholder"])
 
 # bootstrap = Bootstrap(APP)
@@ -74,6 +73,43 @@ def gen_file_name(filename):
         i += 1
 
     return filename
+
+
+@APP.route("/report_issue", methods=["GET", "POST"])
+def report_issue():
+    "report an issue"
+    if request.method == "GET":
+        return render_template("report_issue.html")
+    if request.form:
+        print(request.form)
+    resp = requests.post(
+        "https://www.google.com/recaptcha/api/siteverify",
+        data=dict(
+            secret=os.getenv("RECAPTCHA_SECRET_KEY"),
+            response=request.form["g-recaptcha-response"],
+        ),
+    )
+
+    print(resp.json())
+    print(resp.json().__class__)
+    if not resp.json()["success"]:
+        return "Sorry, Google does not think you are human."
+    # send email here...
+
+    recipients = os.getenv("ISSUE_EMAIL_RECIPIENTS").split(",")
+    subject = "Web form: SEACR-webapp issue report"
+    msg = EmailMessage()
+    msg.set_content(
+        "Name: {}\nEmail address: {}\nIssue:\n\n{}".format(
+            request.form["name"], request.form["email"], request.form["body"]
+        )
+    )
+    msg["From"] = "seacr-do-not-reply@fredhutch.org"
+    msg["To"] = recipients
+    srv = smtplib.SMTP(os.getenv("EMAIL_SERVER"))
+    srv.send_message(msg)
+    srv.quit()
+    return "Your feedback has been sent."
 
 
 @APP.route("/get_job_status", methods=["GET"])
@@ -276,6 +312,7 @@ def axi():
     "axi"
     return render_template("axi.html")
 
+
 @APP.route("/upload/server", methods=["PUT"])
 def axi_upload():
     "axios upload"
@@ -294,9 +331,10 @@ def axi_upload():
   });
 };
     """
-    f = request.files['file']
+    f = request.files["file"]
     f.save(secure_filename(f.filename))
-    return 'file uploaded successfully'
+    return "file uploaded successfully"
+
 
 @APP.route("/")
 def main_route():

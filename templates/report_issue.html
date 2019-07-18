@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Report Issue{% endblock %}
+
+{% block page_content %}
+
+
+<div class="container">
+
+    <h1>Report an issue with this web application</h1>
+
+    <h2>Method 1: Report using GitHub</h2>
+
+    If you have a GitHub account, please report an issue
+    using <a href="https://github.com/FredHutch/SEACR/issues/new">this link</a>.
+
+    <h2>Method 2: Use this form</h2>
+
+    <div class="row">
+        <form action="" method="post">
+
+            <div class="g-recaptcha" data-sitekey="6Le-Ya4UAAAAABCApn11VT2sFTiU_Ygemu097PFa"></div>
+
+            <label for="name">Name:</label>
+            <input name="name" required><br />
+
+            <label for="email">Email:</label>
+            <input name="email" type="email" required><br />
+
+            <label for="body">Describe the issue:</label><br />
+            <textarea rows="5" cols="80" name="body"></textarea><br />
+
+            <input type="submit" value="Submit" />
+
+        </form>
+    </div>
+
+
+</div>
+
+
+
+</div>
+{% endblock %}

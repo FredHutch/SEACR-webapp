@@ -5,6 +5,9 @@
 
 VENV=$(pipenv --venv)
 
+# TODO FIXME - allow other env vars to be set in environment
+# when not using rancher.
+
 if [ ! -f /run/secrets/SEACR_APP_SECRET ]; then
     echo "/run/secrets/SEACR_APP_SECRET does not exist."
     if [ -z ${SEACR_APP_SECRET+x} ]; then
@@ -17,9 +20,16 @@ if [ ! -f /run/secrets/SEACR_APP_SECRET ]; then
 else
     echo "Setting SECRET_KEY to contents of /run/secrets/SEACR_APP_SECRET."
     SECRET_KEY=$(cat /run/secrets/SEACR_APP_SECRET)
+    RECAPTCHA_SECRET_KEY=$(cat /run/secrets/SEACR_RECAPTCHA_SECRET_KEY)
+    ISSUE_EMAIL_RECIPIENTS=$(cat /run/secrets/SEACR_ISSUE_EMAIL_RECIPIENTS)
+    SEACR_EMAIL_SERVER=$(cat /run/secrets/SEACR_EMAIL_SERVER)
 fi
 
 export SECRET_KEY
+export RECAPTCHA_SECRET_KEY
+export ISSUE_EMAIL_RECIPIENTS
+export SEACR_EMAIL_SERVER
+
 
 
 "$VENV/bin/gunicorn" app:APP --timeout 120 -w 4 -b 0.0.0.0:8001

@@ -25,6 +25,10 @@ services:
     restart: always
     secrets:
     - SEACR_APP_SECRET
+    - SEACR_RECAPTCHA_SECRET_KEY
+    - SEACR_ISSUE_EMAIL_RECIPIENTS
+    - SEACR_EMAIL_SERVER
+
     environment:
       - SEACR_APP_SECRET
 
@@ -50,6 +54,12 @@ services:
 
 secrets:
   SEACR_APP_SECRET:
+    external: true
+  SEACR_RECAPTCHA_SECRET_KEY:
+    external: true
+  SEACR_ISSUE_EMAIL_RECIPIENTS:
+    external: true
+  SEACR_EMAIL_SERVER:
     external: true
 
 volumes:

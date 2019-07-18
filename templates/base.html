@@ -24,8 +24,7 @@
                 <li><a target="_blank" href="https://github.com/FredHutch/SEACR/">Method</a></li>
             </ul>
             <ul class="nav navbar-nav">
-                <li><a target="_blank" href="https://github.com/FredHutch/SEACR/issues/new"
-                        title="Report issue with this website (requires GitHub account)">Report Issue</a></li>
+                <li><a target="_blank" href="/report_issue" title="Report issue with this website">Report Issue</a></li>
             </ul>
         </div>
     </div>
@@ -37,6 +36,8 @@
 {% endblock %}
 
 {% block scripts %}
+
 {{ super() }}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 {% endblock %}
