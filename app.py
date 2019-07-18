@@ -93,7 +93,7 @@ def report_issue():
     print(resp.json())
     print(resp.json().__class__)
     if not resp.json()["success"]:
-        return "Sorry, Google does not think you are human."
+        return "Use the Back button and click the \"I'm not a robot\" box."
     # send email here...
 
     recipients = os.getenv("ISSUE_EMAIL_RECIPIENTS").split(",")
@@ -106,6 +106,7 @@ def report_issue():
     )
     msg["From"] = "seacr-do-not-reply@fredhutch.org"
     msg["To"] = recipients
+    msg['Subject'] = subject
     srv = smtplib.SMTP(os.getenv("EMAIL_SERVER"))
     srv.send_message(msg)
     srv.quit()
