@@ -7,6 +7,7 @@ verify_ssl = true
 black = "*"
 pylint = "*"
 ipython = "*"
+rope = "*"
 
 [packages]
 appdirs = "==1.4.3"
