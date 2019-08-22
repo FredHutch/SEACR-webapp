@@ -30,9 +30,6 @@ APP = Celery(
 
 # APP = Celery("tasks", backend="rpc://", broker="pyamqp://guest@fieldroast//")
 
-ERR = io.StringIO()
-OUT = io.StringIO()
-
 
 def datetime_to_number(dtm):
     "convert a datetime to a number"
@@ -100,6 +97,10 @@ def run_seacr(
     output_prefix,
 ):
     "run seacr"
+
+    _err_ = io.StringIO()
+    _out_ = io.StringIO()
+
     # TODO change to unique temp dir based on task id
     LOGGER.info("task id is %s", self.request.id)
     connection = pika.BlockingConnection(
@@ -123,7 +124,7 @@ def run_seacr(
     env = {}
     if os.uname()[0] == "Darwin":
         env["LC_ALL"] = "C"
-    kwargs = dict(_err=ERR, _out=OUT, _env=env, seacr_command=seacr_command)
+    kwargs = dict(_err=_err_, _out=_out_, _env=env, seacr_command=seacr_command)
     # seacr = sh.Command(seacr_command)
     pool = ThreadPool(processes=1)
     async_result = pool.apply_async(seacr_wrapper, args, kwargs)
@@ -132,8 +133,8 @@ def run_seacr(
     errcount = 0
     outcount = 0
     while not async_result.ready():
-        errs = ERR.getvalue()
-        outs = OUT.getvalue()
+        errs = _err_.getvalue()
+        outs = _out_.getvalue()
         if len(errs) > errlen:
             enow = datetime.datetime.utcnow().isoformat()
             newerr = errs[errlen : len(errs)]
