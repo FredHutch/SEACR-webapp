@@ -358,7 +358,7 @@ function doUpload(selector) {
                     return;
                 }
                 failedAlready = true;
-                $("#upload_too_large_modal").modal();
+                $("#upload_problem").modal();
             }
             if (error.response) {
                 console.log("there is a response");
