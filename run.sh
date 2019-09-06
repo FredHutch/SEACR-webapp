@@ -32,4 +32,4 @@ export EMAIL_SERVER
 
 
 
-"$VENV/bin/gunicorn" app:APP --timeout 120 -w 4 -b 0.0.0.0:8001
+"$VENV/bin/gunicorn" app:APP --timeout 2000 -w 4 -b 0.0.0.0:8001
