@@ -215,7 +215,7 @@ def kick_off_job():
         )
 
     # NOTE: hardcoding SEACR version here
-    seacr_path = os.path.dirname(os.path.abspath(__file__)) + "/SEACR/" + "SEACR_1.1.sh"
+    seacr_path = os.path.dirname(os.path.abspath(__file__)) + "/SEACR/" + "SEACR_1.2.sh"
 
     while True:
         try:
