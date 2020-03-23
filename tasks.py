@@ -160,13 +160,17 @@ def run_seacr(
             LOGGER.info("new STDOUT output is %s", newout)
             print(newout)
             outlen = len(outs)
-            channel.basic_publish(
-                exchange="",
-                routing_key=self.request.id,
-                body=json.dumps(
-                    dict(stream="STDOUT", data=newout, timestamp=onow, count=outcount)
-                ),
-            )
+            try:
+                channel.basic_publish(
+                    exchange="",
+                    routing_key=self.request.id,
+                    body=json.dumps(
+                        dict(stream="STDOUT", data=newout, timestamp=onow, count=outcount)
+                    ),
+                )
+            except Exception as exc:
+                print("Caught exception:")
+                print(exc)
             outcount += 1
 
         time.sleep(0.05)
