@@ -20,6 +20,8 @@ services:
       - "8001:8001"
     labels:
       io.rancher.container.pull_image: always
+      name: "scicomp-ext-a1"
+      io.rancher.scheduler.affinity:host_label: name=scicomp-ext-a1
     volumes:
       - seacr-data:/seacr-data
     restart: always
@@ -38,6 +40,8 @@ services:
     command: ./run-celery.sh
     labels:
       io.rancher.container.pull_image: always
+      name: "scicomp-ext-a1"
+      io.rancher.scheduler.affinity:host_label: name=scicomp-ext-a1
     volumes:
       - seacr-data:/seacr-data
     restart: always
@@ -48,6 +52,8 @@ services:
     command: "cron && tail -f /var/log/cron.log"
     labels:
       io.rancher.container.pull_image: always
+      name: "scicomp-ext-a1"
+      io.rancher.scheduler.affinity:host_label: name=scicomp-ext-a1
     volumes:
       - seacr-data:/seacr-data
     restart: always
