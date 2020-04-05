@@ -17,7 +17,7 @@ deploy:
     refs:
         - master
   script:
-    - docker login -e fredhutch@fhcrc.org -u $DOCKER_USER -p "$DOCKER_PASS"
+    - docker login -u $DOCKER_USER -p "$DOCKER_PASS"
     - docker push $DOCKER_ORG/seacr:latest
     - sleep 15
     - rancher-v0.6.2/rancher --url https://ponderosa.fhcrc.org --access-key $RANCHERAPI_KEY --secret-key $RANCHERAPI_SECRET up -d --pull --force-upgrade --confirm-upgrade --stack seacr --file docker-compose.yml --rancher-file rancher-compose.yml
