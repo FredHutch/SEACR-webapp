@@ -1,0 +1,23 @@
+
+before_script:
+  - curl -LO https://releases.rancher.com/cli/v0.6.2/rancher-linux-amd64-v0.6.2.tar.gz
+  - tar zxf rancher-linux-amd64-v0.6.2.tar.gz
+
+build_test:
+  script:
+    - rm -rf SEACR/
+    - git clone https://github.com/FredHutch/SEACR.git
+    - docker build -t $DOCKER_ORG/seacr:latest .
+    - echo Testing an app with multiple services in it causes network problems on circle
+    - echo revisit this with gitlab
+
+
+deploy:
+  only:
+    refs:
+        - master
+  script:
+    - docker login -e fredhutch@fhcrc.org -u $DOCKER_USER -p "$DOCKER_PASS"
+    - docker push $DOCKER_ORG/seacr:latest
+    - sleep 15
+    - rancher-v0.6.2/rancher --url https://ponderosa.fhcrc.org --access-key $RANCHERAPI_KEY --secret-key $RANCHERAPI_SECRET up -d --pull --force-upgrade --confirm-upgrade --stack seacr --file docker-compose.yml --rancher-file rancher-compose.yml
