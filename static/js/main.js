@@ -146,7 +146,9 @@ getFileName = function (file1or2) {
     var selector = "#" + file1or2;
     var placeholder = $(selector).attr('placeholder');
     if (isEmpty(placeholder)) return null;
-    return placeholder;
+    // spaces in filenames cause problems but SEACR does not 
+    // care what the filenames are, so replace with underscores.
+    return placeholder.replace(/ /g, "_");
 }
 
 kickOffJob = function () {

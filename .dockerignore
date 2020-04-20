@@ -1,0 +1,4 @@
+**/*.bedgraph
+data/
+jobs/
+
