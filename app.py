@@ -19,6 +19,7 @@ from flask import Flask, redirect, render_template, request, send_file, url_for
 from flask_bootstrap import Bootstrap
 
 import pika
+from pika.exceptions import StreamLostError
 
 import simplejson
 
@@ -145,7 +146,16 @@ def get_job_status():
     count = 0
     while True:
         try:
+            logging.info("Count is %s.", count)
             res = run_seacr.AsyncResult(task_id=job_id)
+            if isinstance(res.info, StreamLostError):
+                logging.info("Got StreamLostError, resetting connection...")
+                connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(host=util.get_rabbit_host())
+                )  # TODO unhardcode host name (use env var)
+                channel = connection.channel()
+                continue
+
             retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
             logging.info("retval is %s", retval)
             break
