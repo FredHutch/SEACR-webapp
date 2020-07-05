@@ -147,6 +147,7 @@ def get_job_status():
         try:
             res = run_seacr.AsyncResult(task_id=job_id)
             retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+            print("retval is {}".format(retval))
             break
         except (OSError, ConnectionResetError):
             logging.info("Getting task status failed, attempt %s", count)
