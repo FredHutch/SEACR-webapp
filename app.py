@@ -154,6 +154,7 @@ def get_job_status():
                     pika.ConnectionParameters(host=util.get_rabbit_host())
                 )  # TODO unhardcode host name (use env var)
                 channel = connection.channel()
+                count += 1
                 continue
 
             retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
