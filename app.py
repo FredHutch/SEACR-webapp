@@ -150,7 +150,7 @@ def get_job_status():
             res = run_seacr.AsyncResult(task_id=job_id)
             retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
             if isinstance(res.info, StreamLostError):
-                logging.info("Got StreamLostError, resetting connection...")
+                logging.info("Got StreamLostError...")
                 retval['info'] = None
             logging.info("retval is %s", retval)
             break

@@ -3,6 +3,7 @@ Celery tasks
 """
 
 import datetime
+import functools
 import io
 import json
 from multiprocessing.pool import ThreadPool
@@ -83,6 +84,17 @@ def seacr_wrapper(*args, **kwargs):
         # or a tuple of both?
         return (-666, str(exc))
 
+
+def ack_message(channel, delivery_tag):
+    """Note that `channel` must be the same pika channel instance via which
+    the message being ACKed was retrieved (AMQP protocol constraint).
+    """
+    if channel.is_open:
+        channel.basic_ack(delivery_tag)
+    else:
+        # Channel is already closed, so we can't ACK this message;
+        # log and/or do something that makes sense for your app in this case.
+        pass
 
 @APP.task(bind=True)
 def run_seacr(
@@ -171,6 +183,9 @@ def run_seacr(
 
         time.sleep(0.05)
     print("done")
+    # TODO vvv last argument probably needs to be something unique....
+    cb = functools.partial(ack_message, channel, "delivery_tag")
+    connection.add_callback_threadsafe(cb)
     retval = async_result.get()
     LOGGER.info("return value is %s", retval)
     if retval[0] == 0:
