@@ -123,7 +123,7 @@ def get_job_status():
         return json.dumps({"error": "missing 'job_id' arg"})
     job_id = request.args["job_id"]
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host=util.get_rabbit_host())
+        pika.ConnectionParameters(host=util.get_rabbit_host(), heartbeat=600)
     )  # TODO unhardcode host name (use env var)
     channel = connection.channel()
     # TODO handle exception here if queue does not exist:
