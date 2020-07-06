@@ -148,16 +148,10 @@ def get_job_status():
         try:
             logging.info("Count is %s.", count)
             res = run_seacr.AsyncResult(task_id=job_id)
+            retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
             if isinstance(res.info, StreamLostError):
                 logging.info("Got StreamLostError, resetting connection...")
-                connection = pika.BlockingConnection(
-                    pika.ConnectionParameters(host=util.get_rabbit_host())
-                )  # TODO unhardcode host name (use env var)
-                channel = connection.channel()
-                count += 1
-                continue
-
-            retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+                retval['info'] = None
             logging.info("retval is %s", retval)
             break
         except (OSError, ConnectionResetError):
