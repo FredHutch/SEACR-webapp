@@ -95,7 +95,7 @@ validate = function () {
     if (isEmpty(file1)) {
         errors.push("Select a target data bedgraph file.");
     } else {
-        if (!file1.endsWith(".bedgraph")) {
+        if (!file1.toLowerCase().endsWith(".bedgraph")) {
             errors.push("Target data file must have .bedgraph extension.");
         }
     }
@@ -119,7 +119,7 @@ validate = function () {
             $("#threshold").val(threshold);
         }
     }
-    if ((!isEmpty(file2)) && (!file2.endsWith(".bedgraph"))) {
+    if ((!isEmpty(file2)) && (!file2.toLowerCase().endsWith(".bedgraph"))) {
         errors.push("Control (IgG) file must have .bedgraph extension.");
     }
     var outputprefix = $("#outputprefix").val();
