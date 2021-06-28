@@ -29,7 +29,7 @@ rq = "*"
 pika = "*"
 simplejson = "*"
 requests = "*"
-werkzeug = "==0.16.1"
+werkzeug = "*"
 
 [requires]
 python_version = "3.6"

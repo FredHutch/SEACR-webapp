@@ -23,7 +23,7 @@ from pika.exceptions import StreamLostError
 
 import simplejson
 
-from werkzeug import secure_filename  # pylint: disable=no-name-in-module
+from werkzeug.utils import secure_filename
 
 from lib.upload_file import uploadfile
 
