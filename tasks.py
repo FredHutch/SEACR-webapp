@@ -107,6 +107,8 @@ def run_seacr(
     normnon,
     relaxedstringent,
     output_prefix,
+    extension,
+    remove
 ):
     "run seacr"
 
@@ -123,14 +125,25 @@ def run_seacr(
     # 'with os.chdir(...)' is not working for some reason, so just omit the `with`.
     # TODO context mgr needs to be implemented a la https://stackoverflow.com/a/13197763/470769
     os.chdir(job_dir)
-    args = [file1]
+    args = ["-b"]
+    args.append(file1)
+    args.append("-c")
     if threshold:
         args.append(threshold)
     else:
         args.append(file2)
+    args.append("-n")
     args.append(normnon)
+    args.append("-m")
     args.append(relaxedstringent)
+    args.append("-o")
     args.append(output_prefix)
+    if not extension:
+        extension = "0.1"
+    args.append("-e")
+    args.append(extension)
+    args.append("-r")
+    args.append(remove)
     # LC_ALL needs to be set to C on mac (only, I think) or `tr` will
     # complain of `illegal byte sequence` (https://unix.stackexchange.com/a/141423/64811)
     env = {}
@@ -206,4 +219,6 @@ if __name__ == "__main__":
         "norm",
         "stringent",
         "SH_Hs_NPATBH.spike_Ec_IgGBH.spike_Ec",
+        "0.1",
+        "yes"
     )

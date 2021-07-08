@@ -235,6 +235,8 @@ def kick_off_job():
                 jsons["normnon"],
                 jsons["relaxedstringent"],
                 jsons["output_prefix"],
+                jsons["extension"],
+                jsons["remove"]
             )
             break
         except:  # pylint: disable=bare-except
