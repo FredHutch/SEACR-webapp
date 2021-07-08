@@ -141,10 +141,9 @@ validate = function () {
         errors.push("Extension must be a number.")
     }
     if (extension != "" && !isNaN(Number(extension))) {
-        // TODO verify with Mike this is OK
         var numext = Number(extension);
-        if (numext < 0 || numext > 1) {
-            errors.push("Extension must be between 0 and 1.");
+        if (numext < 0 ) {
+            errors.push("Extension must be a positive number.");
         }
     }
 
