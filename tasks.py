@@ -138,10 +138,9 @@ def run_seacr(
     args.append(relaxedstringent)
     args.append("-o")
     args.append(output_prefix)
-    if not extension:
-        extension = "0.1"
-    args.append("-e")
-    args.append(extension)
+    if extension:
+        args.append("-e")
+        args.append(extension)
     args.append("-r")
     args.append(remove)
     # LC_ALL needs to be set to C on mac (only, I think) or `tr` will
