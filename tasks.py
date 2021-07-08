@@ -199,7 +199,7 @@ if __name__ == "__main__":
     run_seacr(
         None,  # this won't work... TODO create mock object?
         "/tmp",
-        "./SEACR/SEACR_1.3.sh", # NOTE hardcoding SEACR version here
+        "./SEACR/SEACR_1.4.sh", # NOTE hardcoding SEACR version here
         "NPATBH.spike_Ec.bedgraph",
         "IgGBH.spike_Ec.bedgraph",
         None,

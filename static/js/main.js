@@ -85,6 +85,8 @@ cleanup = function () {
     $("input[name=relaxedstringent][value='relaxed']").prop("checked", true);
     $('[name="normnon"]').removeAttr("checked");
     $("input[name=normnon][value='norm']").prop("checked", true);
+    $("#extension").val("");
+    $("input[name=remove][value='yes']").prop("checked", true);
 }
 
 validate = function () {
@@ -134,6 +136,18 @@ validate = function () {
             break;
         }
     }
+    var extension = $("#extension").val();
+    if (isNaN(Number(extension))) {
+        errors.push("Extension must be a number.")
+    }
+    if (extension != "" && !isNaN(Number(extension))) {
+        // TODO verify with Mike this is OK
+        var numext = Number(extension);
+        if (numext < 0 || numext > 1) {
+            errors.push("Extension must be between 0 and 1.");
+        }
+    }
+
     if (errors.length > 0) {
         $("#error_list").html(errors.join("<br>"));
         $("#validation_failure_modal").modal();
@@ -166,7 +180,9 @@ kickOffJob = function () {
             threshold: $("#threshold").val(),
             normnon: $('input[name=normnon]:checked').val(),
             relaxedstringent: $('input[name=relaxedstringent]:checked').val(),
-            output_prefix: $("#outputprefix").val()
+            output_prefix: $("#outputprefix").val(),
+            extension: $("#extension").val(),
+            remove: $('input[name=remove]:checked').val()
         })
     }).done(function (msg) {
         taskId = msg['taskId'];
