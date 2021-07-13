@@ -148,7 +148,11 @@ def get_job_status():
         try:
             logging.info("Count is %s.", count)
             res = run_seacr.AsyncResult(task_id=job_id)
-            retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+            try:
+                retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
+            except RecursionError:
+                logging.info("got RecursionError")
+                break
             if isinstance(res.info, StreamLostError):
                 logging.info("Got StreamLostError...")
                 retval['info'] = None
