@@ -148,6 +148,7 @@ def get_job_status():
         try:
             logging.info("Count is %s.", count)
             res = run_seacr.AsyncResult(task_id=job_id)
+            retval = {}
             try:
                 retval = {"state": res.state, "info": res.info, "log_obj": log_obj}
             except RecursionError:
