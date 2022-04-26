@@ -40,7 +40,7 @@ COPY . /SEACR-webapp
 
 WORKDIR /SEACR-webapp
 
-RUN pip3 install pipenv && pipenv install 
+RUN pip3 install pipenv==2022.4.8 && pipenv install 
 
 
 CMD ./run.sh
