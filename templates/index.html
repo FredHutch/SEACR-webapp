@@ -28,7 +28,7 @@
                 <div class="input-group">
                     <label class="input-group-btn">
                         <span class="btn btn-primary">
-                            Browse&hellip; <input type="file" assoc="file1" style="display: none;" id="file1-chimera">
+                            Browse&hellip; <input type="file" name="anything" assoc="file1" style="display: none;" id="file1-chimera">
                         </span>
                     </label>
                     <input type="text" id="file1" class="form-control jork file1-class"
@@ -51,7 +51,7 @@
                 <div class="input-group">
                     <label class="input-group-btn">
                         <span class="btn btn-primary">
-                            Browse&hellip; <input type="file" assoc="file2" style="display: none;" id="file2-chimera">
+                            Browse&hellip; <input type="file" name="anything2" assoc="file2" style="display: none;" id="file2-chimera">
                         </span>
                     </label>
                     <input type="text" id="file2" class="form-control jork file2-class"
@@ -410,7 +410,8 @@
 {# bootstrap #}
 <script src="static/js/bootstrap.min.js"></script>
 {# axios  #}
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- <script src="https://unpkg.com/axios@0.27.1/dist/axios.min.js"></script> -->
+<script src="https://unpkg.com/axios@0.21.2/dist/axios.min.js"></script>
 {# The main application script #}
 <script src="static/js/main.js?timestamp={{timestamp}}"></script>
 {# The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 #}
