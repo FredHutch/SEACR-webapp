@@ -14,7 +14,7 @@ services:
       io.rancher.container.pull_image: always
 
   webapp:
-    image: fredhutch/seacr # change to something in private registry?
+    image: sc-registry.fredhutch.org/seacr
     stdin_open: true
     ports:
       - "8001:8001"
@@ -35,7 +35,7 @@ services:
       - SEACR_APP_SECRET
 
   celery:
-    image: fredhutch/seacr # ??
+    image: sc-registry.fredhutch.org/seacr # ??
     stdin_open: true
     command: ./run-celery.sh
     labels:
@@ -47,7 +47,7 @@ services:
     restart: always
 
   cron-cleaner:
-    image: fredhutch/seacr
+    image: sc-registry.fredhutch.org/seacr
     stdin_open: true
     command: "cron && tail -f /var/log/cron.log"
     labels:

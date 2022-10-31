@@ -1,5 +1,3 @@
-# build as fredhutch/seacr
-
 FROM ubuntu:18.04
 
 ## for apt to be noninteractive

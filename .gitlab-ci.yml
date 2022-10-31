@@ -1,15 +1,37 @@
+# TODO - migrate script on ci-runner in
+# /home/gitlab-runner/search_repair/search_repair.sh
+# (and corresponding cron entry (user gitlab-runner)) to
+# swarm, or somewhere other than ci-runner.
+# Will it still be necessary after app is deployed to swarm?
 
 before_script:
+  - apk update
+  - apk --no-cache add py3-pip python3 curl
+  - pip3 install pyyaml
+  - curl -O https://raw.githubusercontent.com/FredHutch/swarm-build-helper/main/build_helper.py
   - curl -LO https://releases.rancher.com/cli/v0.6.2/rancher-linux-amd64-v0.6.2.tar.gz
   - tar zxf rancher-linux-amd64-v0.6.2.tar.gz
+  # below is from https://stackoverflow.com/a/65810302/470769
+  - mkdir -p $HOME/.docker
+  - echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
+  - set -x
 
-build_test:
+stages:
+  - build
+  # - test
+  - deploy
+
+
+
+build:
+  stage: build
   script:
     - rm -rf SEACR/
     - git clone https://github.com/FredHutch/SEACR.git
-    - docker build -t $DOCKER_ORG/seacr:latest .
+    - docker build -t sc-registry.fredhutch.org/seacr:latest .
     - echo Testing an app with multiple services in it causes network problems on circle
     - echo revisit this with gitlab
+    - docker push sc-registry.fredhutch.org/seacr:latest
 
 
 deploy:
@@ -18,7 +40,6 @@ deploy:
     refs:
         - master
   script:
-    - docker login -u $DOCKER_USER -p "$DOCKER_PASS"
-    - docker push $DOCKER_ORG/seacr:latest
+    - docker push sc-registry.fredhutch.org/seacr:latest
     - sleep 15
     - rancher-v0.6.2/rancher --url https://ponderosa.fhcrc.org --access-key $RANCHERAPI_KEY --secret-key $RANCHERAPI_SECRET up -d --pull --force-upgrade --confirm-upgrade --stack seacr --file docker-compose.yml --rancher-file rancher-compose.yml
