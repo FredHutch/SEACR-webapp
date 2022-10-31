@@ -6,7 +6,7 @@
 
 before_script:
   - apk update
-  - apk --no-cache add py3-pip python3 curl
+  - apk --no-cache add py3-pip python3 curl git
   - pip3 install pyyaml
   - curl -O https://raw.githubusercontent.com/FredHutch/swarm-build-helper/main/build_helper.py
   - curl -LO https://releases.rancher.com/cli/v0.6.2/rancher-linux-amd64-v0.6.2.tar.gz
