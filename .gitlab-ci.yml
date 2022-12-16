@@ -1,16 +1,8 @@
-# TODO - migrate script on ci-runner in
-# /home/gitlab-runner/search_repair/search_repair.sh
-# (and corresponding cron entry (user gitlab-runner)) to
-# swarm, or somewhere other than ci-runner.
-# Will it still be necessary after app is deployed to swarm?
-
 before_script:
   - apk update
   - apk --no-cache add py3-pip python3 curl git
   - pip3 install pyyaml
-  - curl -O https://raw.githubusercontent.com/FredHutch/swarm-build-helper/main/build_helper.py
-  - curl -LO https://releases.rancher.com/cli/v0.6.2/rancher-linux-amd64-v0.6.2.tar.gz
-  - tar zxf rancher-linux-amd64-v0.6.2.tar.gz
+  - curl -O https://raw.githubusercontent.com/FredHutch/swarm-build-helper/main/build_helper.py 
   # below is from https://stackoverflow.com/a/65810302/470769
   - mkdir -p $HOME/.docker
   - echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
@@ -18,21 +10,22 @@ before_script:
 
 stages:
   - build
+  # TODO enable testing
   # - test
   - deploy
-
-
 
 build:
   stage: build
   script:
     - rm -rf SEACR/
     - git clone https://github.com/FredHutch/SEACR.git
-    - docker build -t sc-registry.fredhutch.org/seacr:latest .
-    - echo Testing an app with multiple services in it causes network problems on circle
-    - echo revisit this with gitlab
-    - docker push sc-registry.fredhutch.org/seacr:latest
+    - docker build -t sc-registry.fredhutch.org/seacr:test .
+    - docker push sc-registry.fredhutch.org/seacr:test
 
+# test:
+#   stage: test
+#   script:
+#     - echo pass
 
 deploy:
   stage: deploy
@@ -40,6 +33,9 @@ deploy:
     refs:
         - master
   script:
+    - docker tag sc-registry.fredhutch.org/seacr:test sc-registry.fredhutch.org/seacr:latest
     - docker push sc-registry.fredhutch.org/seacr:latest
     - sleep 15
-    - rancher-v0.6.2/rancher --url https://ponderosa.fhcrc.org --access-key $RANCHERAPI_KEY --secret-key $RANCHERAPI_SECRET up -d --pull --force-upgrade --confirm-upgrade --stack seacr --file docker-compose.yml --rancher-file rancher-compose.yml
+    - echo $SC_SWARM_CICD_SSH_KEY | base64 -d > ./sc_swarm_cicd_ssh_key
+    - chmod 0400 ./sc_swarm_cicd_ssh_key
+    - python3 build_helper.py docker-compose.yml | ssh -i ./sc_swarm_cicd_ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@sc-swarm-mgr.fhcrc.org docker stack deploy --with-registry-auth -c - seacr

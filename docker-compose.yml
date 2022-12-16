@@ -1,59 +1,63 @@
-# IMPORTANT: Version needs to be '2' for deployment but 
-# seems to need to be '3.3' for local testing. TODO figure out why.
-# In the meantime do not commit this file with version '3.3'.
-version: '2'
+version: '3.3'
 
 services:
 
   rabbitmq:
     image: rabbitmq:3
+    networks:
+      - proxy
     stdin_open: true
-    ports:
-      - "5672" # do we really need to expose this?
-    labels:
-      io.rancher.container.pull_image: always
 
   webapp:
+    networks:
+      - proxy  
     image: sc-registry.fredhutch.org/seacr
     stdin_open: true
-    ports:
-      - "8001:8001"
-    labels:
-      io.rancher.container.pull_image: always
-      name: "scicomp-ext-a1"
-      io.rancher.scheduler.affinity:host_label: name=scicomp-ext-a1
     volumes:
       - seacr-data:/seacr-data
-    restart: always
     secrets:
     - SEACR_APP_SECRET
     - SEACR_RECAPTCHA_SECRET_KEY
     - SEACR_ISSUE_EMAIL_RECIPIENTS
     - SEACR_EMAIL_SERVER
-
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.seacr.rule=Host(`seacr.fredhutch.org`)"
+        - "traefik.http.routers.seacr-secured.rule=Host(`seacr.fredhutch.org`)"
+        - "traefik.http.routers.seacr.entrypoints=web,web-secured"
+        - "traefik.http.services.seacr.loadbalancer.server.port=8001 # it seems you always need to give traefik a port so it 'notices' the service
+        - "traefik.http.routers.seacr.tls=true"
+      placement:
+        constraints: [node.hostname == sc-swarm-01]
+      restart_policy:
+        condition: on-failure
     environment:
       - SEACR_APP_SECRET
 
   celery:
-    image: sc-registry.fredhutch.org/seacr # ??
+    networks:
+      - proxy
+    image: sc-registry.fredhutch.org/seacr
     stdin_open: true
     command: ./run-celery.sh
-    labels:
-      io.rancher.container.pull_image: always
-      name: "scicomp-ext-a1"
-      io.rancher.scheduler.affinity:host_label: name=scicomp-ext-a1
     volumes:
       - seacr-data:/seacr-data
-    restart: always
+    deploy:
+      placement:
+        constraints: [node.hostname == sc-swarm-01]
+      restart_policy:
+        condition: on-failure
 
   cron-cleaner:
     image: sc-registry.fredhutch.org/seacr
     stdin_open: true
     command: "cron && tail -f /var/log/cron.log"
-    labels:
-      io.rancher.container.pull_image: always
-      name: "scicomp-ext-a1"
-      io.rancher.scheduler.affinity:host_label: name=scicomp-ext-a1
+    deploy:
+      placement:
+        constraints: [node.hostname == sc-swarm-01]
+      restart_policy:
+        condition: on-failure
     volumes:
       - seacr-data:/seacr-data
     restart: always
@@ -70,4 +74,8 @@ secrets:
 
 volumes:
   seacr-data:
+    external: true
+
+networks:
+  proxy:
     external: true
