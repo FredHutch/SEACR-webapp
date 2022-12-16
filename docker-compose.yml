@@ -29,7 +29,7 @@ services:
         - "traefik.http.services.seacr.loadbalancer.server.port=8001" # it seems you always need to give traefik a port so it 'notices' the service
         - "traefik.http.routers.seacr.tls=true"
       placement:
-        constraints: [node.hostname == sc-swarm-01]
+        constraints: [node.hostname == sc-swarm-02]
       restart_policy:
         condition: on-failure
     environment:
@@ -45,7 +45,7 @@ services:
       - seacr-data:/seacr-data
     deploy:
       placement:
-        constraints: [node.hostname == sc-swarm-01]
+        constraints: [node.hostname == sc-swarm-02]
       restart_policy:
         condition: on-failure
 
@@ -55,7 +55,7 @@ services:
     command: "cron && tail -f /var/log/cron.log"
     deploy:
       placement:
-        constraints: [node.hostname == sc-swarm-01]
+        constraints: [node.hostname == sc-swarm-02]
       restart_policy:
         condition: on-failure
     volumes:
