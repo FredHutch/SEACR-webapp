@@ -26,7 +26,7 @@ services:
         - "traefik.http.routers.seacr.rule=Host(`seacr.fredhutch.org`)"
         - "traefik.http.routers.seacr-secured.rule=Host(`seacr.fredhutch.org`)"
         - "traefik.http.routers.seacr.entrypoints=web,web-secured"
-        - "traefik.http.services.seacr.loadbalancer.server.port=8001 # it seems you always need to give traefik a port so it 'notices' the service
+        - "traefik.http.services.seacr.loadbalancer.server.port=8001" # it seems you always need to give traefik a port so it 'notices' the service
         - "traefik.http.routers.seacr.tls=true"
       placement:
         constraints: [node.hostname == sc-swarm-01]
