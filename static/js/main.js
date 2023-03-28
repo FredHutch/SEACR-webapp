@@ -98,11 +98,17 @@ validate = function () {
         if (!file1.toLowerCase().endsWith(".bedgraph")) {
             errors.push("Target data file must have .bedgraph extension.");
         }
+        if (file1.includes("[") || file1.includes("]")) {
+            errors.push("Target data filename cannot contain '[' or ']'.");
+        }
     }
     var file2 = $("#file2").attr('placeholder');
     var threshold = $("#threshold").val();
     if (isEmpty(file2) && threshold == "") {
         errors.push("Select a control file or choose a numeric threshold.");
+    }
+    if (!isEmpty(file2) && (file2.includes("[") || file2.includes("]"))) {
+       errors.push("Control filename cannot contain '[' or ']'.");
     }
     if ((!isEmpty(file2)) && threshold != "") {
         errors.push("Choose control file OR numeric threshold, not both.")
