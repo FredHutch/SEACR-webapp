@@ -11,6 +11,9 @@ var file1Progress;
 var file2Progress;
 var file1Size = 0;
 var file2Size = 0;
+var file1bytesUploaded = 0;
+var file2bytesUploaded = 0;
+var totalBytesUploaded = 0;
 
 
 function pad(num, size) {
@@ -268,24 +271,32 @@ pollJob = function (taskId) {
 }
 
 
-// axios.interceptors.response.use(
-//     response => {
-//         // do someting on response
-//         console.log("bla1");
-//         return response
-//     },
-//     error => {
-//         if (error.response.status == 413) {
-//             console.log("uploaded file too big!!!!!!!");
-//         }
-//         // do someting on errir
-//         console.log("bla2");
-//         console.log(error.response.data);
-//         console.log(JSON.stringify(error));
-//         return Promise.reject(error.response.data) // => gives me the server resonse
-//     }
-// )
 
+var updateProgressBar = function() {
+
+    var totalPercentCompleted = Math.round((totalBytesUploaded * 100) / sizeOfUploads);
+    $('#progress .progress-bar').css(
+        'width',
+        totalPercentCompleted + '%'
+    );
+
+    var file1PercentCompleted = Math.round((file1bytesUploaded * 100) / file1Size);
+    console.log("file1Size is " + file1Size);
+    console.log("file1PercentCompleted is " + file1PercentCompleted);
+    $('#target-progress .progress-bar').css(
+        'width',
+        file1PercentCompleted + '%'
+    );
+
+    var file2PercentCompleted = Math.round((file2bytesUploaded * 100) / file2Size);
+    console.log("file2Size is " + file2Size);
+    console.log("file2PercentCompleted is " + file2PercentCompleted);
+    $('#control-progress .progress-bar').css(
+        'width',
+        file2PercentCompleted + '%'
+    );
+
+}
 
 async function doUpload(selector) {
 
@@ -293,6 +304,11 @@ async function doUpload(selector) {
     data.append(selector, document.getElementById(selector + '-chimera').files[0]);
     const totalSize = "" +  data.get(selector).size;
     sizeOfUploads += data.get(selector).size;
+    if (selector == "file1") {
+        file1Size = data.get(selector).size;
+    } else {
+        file2Size = data.get(selector).size;
+    }
     console.log("size of uploads is " + sizeOfUploads);
     const chunkSize = 1024 * 1024 * 50; // 50MB
     const filename = data.get(selector).name;
@@ -369,6 +385,13 @@ async function doUpload(selector) {
             console.log("response data is");
             console.log(data);
             console.log(filename + " uploaded " + data.uploaded + " bytes");
+            if (selector == "file1") {
+                file1bytesUploaded = data.uploaded;
+            } else {
+                file2bytesUploaded = data.uploaded;
+            }
+            totalBytesUploaded = file1bytesUploaded + file2bytesUploaded;
+            updateProgressBar();
             // document.getElementById(progressElementId).textContent = data.uploaded;
         } catch (error) {
             console.error('There was a problem with the file upload:', error);
@@ -376,40 +399,6 @@ async function doUpload(selector) {
 
         start = end;
     }
-
-    // axios.post("/upload/" + jobTimestamp, data, config)
-    //     .then(function (res) {
-    //         console.log("in first then with selector " + selector);
-    //         console.log(res);
-    //         filesUploadedSuccessfully += 1;
-    //         if (filesUploadedSuccessfully == expectedNumberOfUploads) {
-    //             $("#progress-container").hide();
-    //             // now do stuff...
-    //             kickOffJob();
-    //         }
-
-    //     })
-    //     .catch(function (error) {
-    //         if (!error.response) {
-    //             console.log("there is no response");
-    //             if (failedAlready) {
-    //                 console.log("we already failed once.");
-    //                 return;
-    //             }
-    //             failedAlready = true;
-    //             $("#upload_problem").modal();
-    //         }
-    //         if (error.response) {
-    //             console.log("there is a response");
-    //             /*
-    //              * The request was made and the server responded with a
-    //              * status code that falls out of the range of 2xx
-    //              */
-    //             console.log(error.response.data);
-    //             console.log(error.response.status);
-    //             console.log(error.response.headers);
-    //         }
-    //     });
 
 }
 
@@ -436,6 +425,7 @@ $(function () {
                 console.log(data);
                 ++filesUploadedSuccessfully;
                 if (expectedNumberOfUploads == filesUploadedSuccessfully) {
+                    $("#progress-container").hide();
                     kickOffJob();
                     // $("#control-progress-container").hide();
                     // $("#global-progress-container").hide();
@@ -446,6 +436,7 @@ $(function () {
                 doUpload("file2").then((data) => {
                     ++filesUploadedSuccessfully;
                     if (expectedNumberOfUploads == filesUploadedSuccessfully) {
+                        $("#progress-container").hide();
                         kickOffJob();
                         console.log("file2 upload done");
                         console.log(data);

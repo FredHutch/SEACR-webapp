@@ -346,35 +346,6 @@ def upload(timestamp):
     return redirect(url_for("i"))
 
 
-@APP.route("/axi")
-def axi():
-    "axi"
-    return render_template("axi.html")
-
-
-@APP.route("/upload/server", methods=["PUT"])
-def axi_upload():
-    "axios upload"
-    """
-    module.exports = function (req, res) {
-  var data = '';
-
-  req.on('data', function (chunk) {
-    data += chunk;
-  });
-
-  req.on('end', function () {
-    console.log('File uploaded');
-    res.writeHead(200);
-    res.end();
-  });
-};
-    """
-    f = request.files["file"]
-    f.save(secure_filename(f.filename))
-    return "file uploaded successfully"
-
-
 @APP.route("/")
 def main_route():
     "default route"
