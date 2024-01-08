@@ -7,6 +7,8 @@ import os
 
 def on_docker():
     "determine whether we are on docker or not"
+    if os.uname().sysname == 'Darwin':
+        return False
     if os.path.exists("/proc/2/status"):
         with open("/proc/2/status") as flh:
             lines = flh.readlines()

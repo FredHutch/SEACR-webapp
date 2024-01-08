@@ -268,11 +268,15 @@ def upload(timestamp):
         files = request.files[key]
 
         if files:
-            filename = secure_filename(files.filename)
-            filename = gen_file_name(filename)
+            orig_filename = request.form['filename']
+            chunk = request.files["data"]
+            start = int(request.form["start"])
+            total_size = int(request.form["total_size"])
+            filename = secure_filename(orig_filename)
+            print("orig_filename:", orig_filename, "start:", start, "total_size:", total_size)
             mime_type = files.content_type
 
-            if not allowed_file(files.filename):
+            if not allowed_file(filename):
                 result = uploadfile(
                     name=filename,
                     type=mime_type,
@@ -283,7 +287,30 @@ def upload(timestamp):
             else:
                 # save file to disk
                 uploaded_file_path = os.path.join(APP.config["UPLOAD_FOLDER"], filename)
-                files.save(uploaded_file_path)
+                # files.save(uploaded_file_path)
+                mode = "ab" if os.path.exists(uploaded_file_path) else "wb"
+                with open(uploaded_file_path, mode) as f:
+                    data = chunk.read()
+                    print(f"{filename}: got a chunk of size {len(data)}")
+                    f.seek(start)
+                    f.write(data)
+                
+                total_bytes_uploaded = os.path.getsize(uploaded_file_path)
+                if total_bytes_uploaded > total_size:
+                    print(f"{filename}: received more bytes than expected")
+                if total_bytes_uploaded == total_size:
+                    print(f"Upload of {filename} is complete.")
+                    print(f"actual path: {uploaded_file_path}")
+                    print(f"total_bytes_uploaded is {total_bytes_uploaded}")
+                    print(f"total_size is {total_size}")
+                    print("sleeping")
+                    time.sleep(0.3)
+                    print("waking up")
+                    total_bytes_uploaded = os.path.getsize(uploaded_file_path)
+                    print(f"2total_bytes_uploaded is {total_bytes_uploaded}")                          
+                          
+                
+                return {'uploaded': total_bytes_uploaded}, 200
 
                 # create thumbnail after saving
                 # if mime_type.startswith('image'):
@@ -297,7 +324,7 @@ def upload(timestamp):
 
             return simplejson.dumps({"files": [result.get_file()]})
 
-    # TODO get rid of this:
+    # TODO get rid of this: It does not seem to be called.
     if request.method == "GET":
         # get all file in ./data directory
         files = [
@@ -381,4 +408,4 @@ def send_file_to_user(filenum, prefix, job_dir):
 
 
 if __name__ == "__main__":
-    APP.run(debug=True)  # debug will be false in production (gunicorn)
+    APP.run(debug=True, port=5001)  # debug will be false in production (gunicorn)

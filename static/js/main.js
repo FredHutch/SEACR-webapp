@@ -1,20 +1,9 @@
-/*
- * jQuery File Upload Plugin JS Example 8.9.1
- * https://github.com/blueimp/jQuery-File-Upload
- *
- * Copyright 2010, Sebastian Tschan
- * https://blueimp.net
- *
- * Licensed under the MIT license:
- * http://www.opensource.org/licenses/MIT
- */
-
-/* global $, window */
 
 
 
 var filesUploadedSuccessfully = 0;
 var expectedNumberOfUploads = 0;
+var sizeOfUploads = 0;
 var uploadedFiles = [];
 var taskId = null;
 var failedAlready = false;
@@ -298,11 +287,19 @@ pollJob = function (taskId) {
 // )
 
 
-function doUpload(selector) {
+async function doUpload(selector) {
 
     var data = new FormData();
     data.append(selector, document.getElementById(selector + '-chimera').files[0]);
-
+    const totalSize = "" +  data.get(selector).size;
+    sizeOfUploads += data.get(selector).size;
+    console.log("size of uploads is " + sizeOfUploads);
+    const chunkSize = 1024 * 1024 * 50; // 50MB
+    const filename = data.get(selector).name;
+    console.log("total size is " + totalSize);
+    console.log(data.get(selector));
+    console.log("filename is " + filename);
+    let start = 0;
 
     var config = {
         validateStatus: function (status) {
@@ -345,40 +342,74 @@ function doUpload(selector) {
         }
     };
 
+    while (start < totalSize) {
+        let end = Math.min(start + chunkSize, totalSize);
+        let slice = data.get(selector).slice(start, end);
+        // let filename = data.get(selector).name;
 
-    axios.post("/upload/" + jobTimestamp, data, config)
-        .then(function (res) {
-            console.log("in first then with selector " + selector);
-            console.log(res);
-            filesUploadedSuccessfully += 1;
-            if (filesUploadedSuccessfully == expectedNumberOfUploads) {
-                $("#progress-container").hide();
-                // now do stuff...
-                kickOffJob();
+        let formData = new FormData();
+
+        let url = '/upload/' + jobTimestamp;
+        formData.append('data', slice);
+        formData.append('filename', filename);
+        formData.append('start', start);
+        formData.append('total_size', totalSize); // Send total size to server
+
+        try {
+            let response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-        })
-        .catch(function (error) {
-            if (!error.response) {
-                console.log("there is no response");
-                if (failedAlready) {
-                    console.log("we already failed once.");
-                    return;
-                }
-                failedAlready = true;
-                $("#upload_problem").modal();
-            }
-            if (error.response) {
-                console.log("there is a response");
-                /*
-                 * The request was made and the server responded with a
-                 * status code that falls out of the range of 2xx
-                 */
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            }
-        });
+            let data = await response.json();
+            console.log("response data is");
+            console.log(data);
+            console.log(filename + " uploaded " + data.uploaded + " bytes");
+            // document.getElementById(progressElementId).textContent = data.uploaded;
+        } catch (error) {
+            console.error('There was a problem with the file upload:', error);
+        }
+
+        start = end;
+    }
+
+    // axios.post("/upload/" + jobTimestamp, data, config)
+    //     .then(function (res) {
+    //         console.log("in first then with selector " + selector);
+    //         console.log(res);
+    //         filesUploadedSuccessfully += 1;
+    //         if (filesUploadedSuccessfully == expectedNumberOfUploads) {
+    //             $("#progress-container").hide();
+    //             // now do stuff...
+    //             kickOffJob();
+    //         }
+
+    //     })
+    //     .catch(function (error) {
+    //         if (!error.response) {
+    //             console.log("there is no response");
+    //             if (failedAlready) {
+    //                 console.log("we already failed once.");
+    //                 return;
+    //             }
+    //             failedAlready = true;
+    //             $("#upload_problem").modal();
+    //         }
+    //         if (error.response) {
+    //             console.log("there is a response");
+    //             /*
+    //              * The request was made and the server responded with a
+    //              * status code that falls out of the range of 2xx
+    //              */
+    //             console.log(error.response.data);
+    //             console.log(error.response.status);
+    //             console.log(error.response.headers);
+    //         }
+    //     });
 
 }
 
@@ -388,16 +419,38 @@ $(function () {
     cleanup();
     $("#submitbutton").bind('click', function () {
         var valid = validate();
-        if (valid && expectedNumberOfUploads == 0) {
+        // what happens if we are not valid?
+        if (valid) {
             expectedNumberOfUploads = 1;
+            if (!isEmpty(file2)) {
+                expectedNumberOfUploads = 2;
+            }
+        // }
+        // if (valid && expectedNumberOfUploads == 0) {
+            // expectedNumberOfUploads = 1;
             $("#progress-container").show();
             $("#fileupload-container").hide();
 
-            doUpload("file1");
+            doUpload("file1").then((data) => {
+                console.log("file1 upload done");
+                console.log(data);
+                ++filesUploadedSuccessfully;
+                if (expectedNumberOfUploads == filesUploadedSuccessfully) {
+                    kickOffJob();
+                    // $("#control-progress-container").hide();
+                    // $("#global-progress-container").hide();
+                }
+            });
             var file2 = $("#file2").attr('placeholder');
-            if (!isEmpty(file2)) {
-                expectedNumberOfUploads = 2;
-                doUpload("file2");
+            if (expectedNumberOfUploads == 2) {
+                doUpload("file2").then((data) => {
+                    ++filesUploadedSuccessfully;
+                    if (expectedNumberOfUploads == filesUploadedSuccessfully) {
+                        kickOffJob();
+                        console.log("file2 upload done");
+                        console.log(data);
+                    }
+                });
             }
 
             if (expectedNumberOfUploads == 1) {

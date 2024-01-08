@@ -18,6 +18,7 @@ Front end:
 
 * [jQuery](https://jquery.com) - Javascript library
 * [Bootstrap](https://getbootstrap.com) - front-end component library
+<!-- TODO REMOVE: will be using fetch instead-->
 * [jQuery File Upload](https://github.com/blueimp/jQuery-File-Upload) - file upload widget
 
 ### Functionality
@@ -56,5 +57,5 @@ celery -A tasks worker --loglevel=info
 ```
 
 * Start web app in development mode with `python app.py`. App
-  will be available at [http://localhost:5000](http://localhost:5000).
+  will be available at [http://localhost:5001](http://localhost:5001).
 
