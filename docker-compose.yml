@@ -4,6 +4,9 @@ services:
 
   rabbitmq:
     image: rabbitmq:3
+    configs:
+      - source: seacr-rabbitmq-config
+        target: /etc/rabbitmq/conf.d/30-consumer-timeout.conf
     networks:
       - proxy
     stdin_open: true
@@ -78,4 +81,8 @@ volumes:
 
 networks:
   proxy:
+    external: true
+
+configs:
+  seacr-rabbitmq-config:
     external: true
