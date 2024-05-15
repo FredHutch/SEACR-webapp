@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
 # need gnupg for later steps
-RUN apt-get update -y && apt-get install -y gnupg2 ca-certificates
+RUN apt-get update -y && apt-get update -y && apt-get install -y gnupg2 ca-certificates
 
 # key for R packages:
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
