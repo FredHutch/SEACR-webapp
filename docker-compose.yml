@@ -17,7 +17,7 @@ services:
     image: sc-registry.fredhutch.org/seacr
     stdin_open: true
     volumes:
-      - seacr-data:/seacr-data
+      - seacr:/seacr-data
     secrets:
     - SEACR_APP_SECRET
     - SEACR_RECAPTCHA_SECRET_KEY
@@ -31,8 +31,6 @@ services:
         - "traefik.http.routers.seacr.entrypoints=web,web-secured"
         - "traefik.http.services.seacr.loadbalancer.server.port=8001" # it seems you always need to give traefik a port so it 'notices' the service
         - "traefik.http.routers.seacr.tls=true"
-      placement:
-        constraints: [node.hostname == sc-swarm-02]
       restart_policy:
         condition: on-failure
     environment:
@@ -45,10 +43,8 @@ services:
     stdin_open: true
     command: ./run-celery.sh
     volumes:
-      - seacr-data:/seacr-data
+      - seacr:/seacr-data
     deploy:
-      placement:
-        constraints: [node.hostname == sc-swarm-02]
       restart_policy:
         condition: on-failure
 
@@ -57,12 +53,10 @@ services:
     stdin_open: true
     command: "cron && tail -f /var/log/cron.log"
     deploy:
-      placement:
-        constraints: [node.hostname == sc-swarm-02]
       restart_policy:
         condition: on-failure
     volumes:
-      - seacr-data:/seacr-data
+      - seacr:/seacr-data
     restart: always
 
 secrets:
@@ -76,8 +70,12 @@ secrets:
     external: true
 
 volumes:
-  seacr-data:
-    external: true
+  seacr:
+    driver: local
+    driver_opts:
+      type: nfs
+      device: "${PERSISTENT_VOLUME_PATH}"
+      o: addr=${NFS_SERVER},rw
 
 networks:
   proxy:
