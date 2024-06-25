@@ -4,6 +4,7 @@ FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
+RUN echo starting...
 # need gnupg for later steps
 RUN apt-get update -y && apt-get update -y && apt-get install -y gnupg2 ca-certificates
 
