@@ -167,6 +167,13 @@ kickOffJob = function () {
             output_prefix: $("#outputprefix").val()
         })
     }).done(function (msg) {
+        console.log("in /kick_off_job callback");
+        if ('result' in msg) {
+          if (msg['result'] == "invalid characters in input") {
+            alert("Invalid characters in input. Please reload and try again.");
+            return;
+          }
+        }
         taskId = msg['taskId'];
         console.log("celery task id is " + taskId);
         pollJob(msg['taskId']);

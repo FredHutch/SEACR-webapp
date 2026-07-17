@@ -9,6 +9,7 @@ import datetime
 from email.message import EmailMessage
 import json
 import logging
+from multiprocessing import Value
 import os
 import shutil
 import smtplib
@@ -170,6 +171,39 @@ def get_job_status():
     print(retval)
     return json.dumps(retval)
 
+def is_int(s) -> bool:
+    try:
+       int(s)
+    except ValueError:
+        return False
+    return True
+
+
+def is_float(s) -> bool:
+    try:
+       float(s)
+    except ValueError:
+        return False
+    return True
+
+
+def validate(payload) -> bool:
+    badstrings = ['"', "'", ' --', '-- ', '&', '|', ';', '$']
+    for v in payload.values():
+        for b in badstrings:
+            if v and b in v:
+                return False
+    if not payload['normnon'] in ['norm', 'non']:
+        return False
+    if payload['threshold']:
+        if not is_float(payload['threshold']):
+            return False
+    if not is_int(payload['timestamp']):
+        return False
+    if not payload['relaxedstringent'] in ['relaxed', 'stringent']:
+        return False
+
+    return True
 
 @APP.route("/kick_off_job", methods=["POST"])
 def kick_off_job():
@@ -182,6 +216,10 @@ def kick_off_job():
     print("in kick_off_job(), jsons is")
     print(jsons)
     print(jsons.__class__)
+
+    if not validate(jsons):
+        print("invalid characters in input")
+        return '{"result": "invalid characters in input"}'
 
     # set up upload dir
     APP.config["UPLOAD_FOLDER"] = os.path.join(
