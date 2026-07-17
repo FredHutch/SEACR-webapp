@@ -188,7 +188,7 @@ def is_float(s) -> bool:
 
 
 def validate(payload) -> bool:
-    badstrings = ['"', "'", ' --', '-- ', '&', '|', ';', '$']
+    badstrings = ['"', "'", ' --', '-- ', '&', '|', ';', '$', '`']
     for v in payload.values():
         for b in badstrings:
             if v and b in v:

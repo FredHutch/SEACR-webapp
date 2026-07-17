@@ -63,10 +63,6 @@ def seacr_wrapper(*args, **kwargs):
         seacr = sh.Command(kwargs["seacr_command"])
         del kwargs["seacr_command"]
         
-        for arg in args:
-            arg = f"'{arg}'"
-        for kwarg in kwargs.keys():
-            kwargs[kwarg] = f"'{kwarg}'"
         result = seacr(*args, **kwargs)
         LOGGER.info("job completed with result code %s", result.exit_code)
         if result.exit_code == 0:
